@@ -35,7 +35,7 @@
     font-size: 16px;
   }
 
-  --background: oklch(1 0 0);
+  --background: #EEF3F9;
 
   --foreground: oklch(0.145 0 0);
 
@@ -79,9 +79,9 @@
 
   --radius: 0.625rem;
 
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: #133C55; 
 
-  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-foreground: oklch(100% 0.00011 271.152);
 
   --sidebar-primary: oklch(0.205 0 0);
 

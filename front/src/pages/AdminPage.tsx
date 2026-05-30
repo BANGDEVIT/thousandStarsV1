@@ -8,6 +8,7 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Outlet } from "react-router"
 import type { DashboardContextType } from "@/types/dashboard";
+import type {DataTable} from "../components/dashboard/data-table"
 import roomsJSON from "../components/dashboard/rooms.json";
 import bookingsJSON from "../components/dashboard/bookings.json";
 
