@@ -1,9 +1,9 @@
 import { BrowserRouter, Route, Routes } from "react-router";
-import SigninPage from "./pages/SigninPage";
-import SignupPage from "./pages/SignupPage";
-import HomePage from "./pages/HomePage";
+import { DataTable } from "@/components/dashboard/data-table"
+import AdminPage from "./pages/AdminPage"
 import { Toaster } from "sonner";
-
+import data from "@/components/dashboard/data.json"
+import ChartInfo from "./components/dashboard/chartinfo";
 function App() {
   return (
     <>
@@ -11,11 +11,10 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public routes */}
-          <Route path="/signin" element={<SigninPage />} />
-
-          <Route path="/signup" element={<SignupPage />} />
-          {/* Protected routes */}
-          <Route path="/homepage" element={<HomePage />} />
+          <Route path="/admin" element={<AdminPage />}> 
+            <Route index element={<ChartInfo />} />
+            <Route path="table" element={<DataTable data={data} />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </>
