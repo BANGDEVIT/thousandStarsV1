@@ -172,6 +172,29 @@
   border-radius: 0;
 }
 .auth-wrap .btn-submit:hover { background: #1a3a5a; }
+.auth-wrap .btn-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.auth-wrap .form-row-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.auth-wrap .form-error {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #c0392b;
+}
+
+.auth-wrap .form-optional {
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(42, 34, 24, 0.45);
+}
 
 .divider {
   display: flex;

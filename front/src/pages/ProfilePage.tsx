@@ -2,7 +2,8 @@ import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 import ProfileNavbar from "@/components/ProfileNavbar";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/features/auth/store/authStore";
+import { displayNameFromEmail } from "@/features/auth/utils/postLoginRedirect";
 
 const tabs = [
   { id: "profile", label: "Thông tin cá nhân", icon: "👤" },
@@ -60,12 +61,12 @@ const DEFAULT_PROFILE = {
 export default function ProfilePage() {
   const navigate = useNavigate();
   const storeUser = useAuthStore((s) => s.user);
-  const signOut = useAuthStore((s) => s.signOut);
+  const logout = useAuthStore((s) => s.logout);
 
   const profile = {
-    name: storeUser?.displayName ?? DEFAULT_PROFILE.name,
+    name: displayNameFromEmail(storeUser?.email) || DEFAULT_PROFILE.name,
     email: storeUser?.email ?? DEFAULT_PROFILE.email,
-    phone: storeUser?.phone ?? DEFAULT_PROFILE.phone,
+    phone: DEFAULT_PROFILE.phone,
     role: "Guest",
     joinDate: DEFAULT_PROFILE.joinDate,
     totalBookings: DEFAULT_PROFILE.totalBookings,
@@ -75,7 +76,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<TabId>("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
-    storeUser?.avatarUrl ?? null,
+    null,
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -122,7 +123,7 @@ export default function ProfilePage() {
 
   const handleLogout = async () => {
     try {
-      await signOut();
+      await logout();
       navigate("/signin", { replace: true });
     } catch {
       toast.error("Không thể đăng xuất");
@@ -139,7 +140,11 @@ export default function ProfilePage() {
 
       <div className="profile-hero">
         <div className="hero-content">
-          <span className="breadcrumb">Trang chủ / Tài khoản</span>
+          <span className="breadcrumb">
+            <Link to="/">Trang chủ</Link>
+            <span className="breadcrumb-sep"> / </span>
+            <span className="breadcrumb-current">Tài khoản</span>
+          </span>
           <h1>Tài khoản của tôi</h1>
         </div>
       </div>

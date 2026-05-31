@@ -49,6 +49,17 @@
   margin-bottom: 0.5rem;
 }
 
+.profile-hero .breadcrumb a {
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.profile-hero .breadcrumb a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
 .profile-hero .hero-content h1 {
   font-size: 1.8rem;
   font-weight: 600;

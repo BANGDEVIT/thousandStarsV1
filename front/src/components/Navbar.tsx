@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/features/auth/store/authStore";
+import { displayNameFromEmail } from "@/features/auth/utils/postLoginRedirect";
 
 type NavbarProps = {
   dark?: boolean;
@@ -20,10 +21,10 @@ function getInitials(name: string) {
 export default function Navbar({ dark = true, loggedIn: loggedInProp }: NavbarProps) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const accessToken = useAuthStore((s) => s.accessToken);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
-  const loggedIn = loggedInProp ?? Boolean(accessToken);
-  const initials = getInitials(user?.displayName ?? "FN");
+  const loggedIn = loggedInProp ?? isAuthenticated;
+  const initials = getInitials(displayNameFromEmail(user?.email));
 
   const currentPage =
     pathname === "/" ? "home" : pathname.replace(/^\//, "").split("/")[0];

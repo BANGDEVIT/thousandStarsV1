@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/features/auth/store/authStore";
+import { displayNameFromEmail } from "@/features/auth/utils/postLoginRedirect";
 
 function getInitials(name: string) {
   return name
@@ -16,7 +17,7 @@ export default function ProfileNavbar() {
   const { pathname } = useLocation();
   const user = useAuthStore((s) => s.user);
 
-  const displayName = user?.displayName ?? "Khách";
+  const displayName = displayNameFromEmail(user?.email);
   const initials = getInitials(displayName);
 
   const segment = pathname.replace(/^\//, "").split("/")[0];
@@ -26,8 +27,8 @@ export default function ProfileNavbar() {
     <nav className="navbar dark navbar--profile">
       <span
         className="nav-logo"
-        onClick={() => navigate("/profile")}
-        onKeyDown={(e) => e.key === "Enter" && navigate("/profile")}
+        onClick={() => navigate("/")}
+        onKeyDown={(e) => e.key === "Enter" && navigate("/")}
         role="button"
         tabIndex={0}
       >
@@ -35,8 +36,11 @@ export default function ProfileNavbar() {
       </span>
 
       <div className="nav-links">
-        <Link to="/profile" className={isProfileHome ? "active" : ""}>
+        <Link to="/" className={pathname === "/" ? "active" : ""}>
           Trang chủ
+        </Link>
+        <Link to="/profile" className={isProfileHome ? "active" : ""}>
+          Tài khoản
         </Link>
         <Link
           to="/hotels"

@@ -1,20 +1,42 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
+import { useAuthStore } from "@/features/auth/store/authStore";
+import { resolvePostLoginPath } from "@/features/auth/utils/postLoginRedirect";
+
+type LocationState = {
+  from?: { pathname: string };
+};
 
 export default function SigninPage() {
   const navigate = useNavigate();
-  const signIn = useAuthStore((s) => s.signIn);
-  const loading = useAuthStore((s) => s.loading);
+  const location = useLocation();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
+  const login = useAuthStore((s) => s.login);
+  const isLoading = useAuthStore((s) => s.isLoading);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
 
+  const fromPath = (location.state as LocationState | null)?.from?.pathname;
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.roles.length) return;
+    navigate(resolvePostLoginPath(user.roles, fromPath), { replace: true });
+  }, [isAuthenticated, user, fromPath, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return;
-    await signIn(email, password);
-    navigate("/profile", { replace: true });
+
+    try {
+      await login({ email, password });
+      const roles = useAuthStore.getState().user?.roles ?? [];
+      navigate(resolvePostLoginPath(roles, fromPath), { replace: true });
+    } catch {
+      /* toast trong store */
+    }
   };
 
   return (
@@ -41,7 +63,8 @@ export default function SigninPage() {
         <div className="auth-header">
           <h1 className="auth-title">Chào Mừng Trở Lại</h1>
           <p className="auth-subtitle">
-            Đăng nhập để quản lý phòng, ưu đãi và thông tin lưu trú của bạn
+            Đăng nhập cho khách hàng hoặc nhân viên — tài khoản quản trị sẽ vào bảng
+            điều khiển, khách hàng vào trang cá nhân.
           </p>
         </div>
 
@@ -92,8 +115,8 @@ export default function SigninPage() {
             </a>
           </div>
 
-          <button type="submit" className="btn-submit" disabled={loading}>
-            {loading ? "ĐANG ĐĂNG NHẬP..." : "ĐĂNG NHẬP"}
+          <button type="submit" className="btn-submit" disabled={isLoading}>
+            {isLoading ? "ĐANG ĐĂNG NHẬP..." : "ĐĂNG NHẬP"}
           </button>
 
           <div className="divider">
