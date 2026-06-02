@@ -13,19 +13,16 @@ export const authService = {
       { email, password, phone, firstName, lastName },
       { withCredentials: true },
     );
-
     return res.data;
   },
-
-  signIn: async (username: string, password: string) => {
+  signIn: async (email: string, password: string) => {
     const res = await api.post(
-      "auth/login",
-      { username, password },
+      "/auth/login",
+      { email, password },
       { withCredentials: true },
     );
-    return res.data; // access token
+    return res.data.data;
   },
-
   signOut: async () => {
     return api.post("/auth/logout", { withCredentials: true });
   },
