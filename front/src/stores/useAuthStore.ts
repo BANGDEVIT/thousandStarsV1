@@ -9,18 +9,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   loading: false,
 
-  signup: async (firstName, lastName, email, password, phone) => {
-    try {
-      set({ loading: true });
-      // goi APi
-      const data = await authService.signUp(email, password, firstName, lastName, phone);
-      toast.success("Đăng kí thành công");
-    } catch (error) {
-      console.log(error);
-      toast.error("Đăng kí không thành công");
-    } finally {
-      set({ loading: false });
+  signUp: async (email, password, firstName, lastName, phone) => {
+  try {
+    set({ loading: true });
+    await authService.signUp(email, password, firstName, lastName, phone);
+    // Register không trả token → gọi signIn luôn
+    await get().signIn(email, password);
+    toast.success("Đăng ký thành công");
+  } catch (error: unknown) {
+    const status = (error as { response?: { status?: number } })?.response?.status;
+    if (status === 409) {
+      toast.error("Email này đã được sử dụng");
+    } else if (status === 400) {
+      toast.error("Dữ liệu không hợp lệ");
+    } else {
+      toast.error("Đăng ký không thành công");
     }
+  } finally {
+    set({ loading: false });
+  }
   },
   signIn: async (email, password) => {
   try {
