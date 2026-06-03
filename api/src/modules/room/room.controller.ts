@@ -32,6 +32,7 @@ import {
 import { QueryRoomDto } from './dto/query-room.dto';
 import { UpdateRoomStatusDto } from './dto/update-room-status.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { Public } from '../../common/decorators/public.decorator';
 
 @Controller('rooms')
 @ApiTags('rooms')
@@ -79,7 +80,8 @@ export class RoomController {
 
   @Get()
   @HttpCode(200)
-  @Roles('staff', 'manager', 'admin')
+  //@Roles('staff', 'manager', 'admin')
+  @Public()
   @ApiOperation({
     summary: 'Lấy danh sách phòng',
     description: 'Hỗ trợ filter theo trạng thái, loại phòng, tầng',

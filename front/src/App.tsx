@@ -3,10 +3,30 @@ import SigninPage from "./pages/SigninPage";
 import HomePage from "./pages/HomePage";
 import { Toaster } from "sonner";
 import SignupPage from "./pages/SignupPage";
+import UserProfile from "./pages/UserProfile";
+import { useInitAuth } from "./stores/useInitAuth";
+import { useAuthStore } from "./stores/useAuthStore";
+import { LoadingOverlay } from "./components/loading/LoadingOverlay";
+import { useProfileStore } from "./stores/useProfileStore";
+import { useEffect } from "react";
 
 function App() {
+  useInitAuth();
+  const isInitialized = useAuthStore((s) => s.isInitialized);
+  const accessToken = useAuthStore((s) => s.accessToken)
+  const fetchProfile = useProfileStore((s) => s.fetchProfile)
+
+  useEffect(() => {
+    if (accessToken) {
+      fetchProfile()
+    }
+  }, [accessToken])
+  
+  if (!isInitialized) return <div>Loading...</div>; 
+
   return (
     <>
+      <LoadingOverlay />
       <Toaster richColors />
       <BrowserRouter>
         <Routes>
@@ -15,8 +35,10 @@ function App() {
           
           <Route path="/signup" element={<SignupPage />} />
           
-          {/* Protected routes */}
           <Route path="/homepage" element={<HomePage />} />
+
+          <Route path="/profile" element={<UserProfile />} />
+          {/* Protected routes */}
         </Routes>
       </BrowserRouter>
     </>

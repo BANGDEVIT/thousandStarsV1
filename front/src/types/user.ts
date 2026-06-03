@@ -1,11 +1,21 @@
 export interface User {
-  _id: string;
+  id: string;
   email: string;
-  displayName: string;
-  avatarUrl?: string;
-  bio?: string;
+  full_name?: string;
+  display_name?: string;
+  first_name?: string;
+  last_name?: string;
+  roles: string[];
   phone?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  // Cap nhat sau
+  id_card?: string;
+  id_card_img_url?: string;
+  id_card_img_back_url?: string;
+  nationality?: string;
+  reward_points?: number;
+  account: {
+    id: string;
+    email: string;
+    roles: string[];
+  };
+  updated_at?: string;
 }

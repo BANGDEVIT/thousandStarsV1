@@ -15,8 +15,11 @@ export class CustomerResponseDto {
   @ApiProperty({ example: 'uuid123' })
   id: string;
 
-  @ApiProperty({ example: 'Bui Cong Bang' })
-  full_name: string;
+  @ApiProperty({ example: 'Bui Cong' })
+  first_name: string;
+
+  @ApiProperty({ example: 'Bang' })
+  last_name: string;
 
   @ApiPropertyOptional({ example: '0909123456' })
   phone: string | null;

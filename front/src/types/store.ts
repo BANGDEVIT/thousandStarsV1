@@ -5,9 +5,11 @@ export interface AuthState {
   roles: string[];
   user: User | null;
   loading: boolean;
+  isInitialized?: boolean; // Thêm trường này để theo dõi trạng thái khởi tạo
 
   setAccessToken: (accessToken: string) => void;
   // clearState: () => void;
+  setInitialized: () => void;
   signUp: (
     email: string,
     password: string,
