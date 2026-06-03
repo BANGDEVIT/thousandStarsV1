@@ -22,59 +22,64 @@ export function NavUser() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 hover:bg-white/10 cursor-pointer outline-none transition-colors">
-          {/* Avatar tròn */}
+          {/* Avatar tròn ngoài Navbar - Giữ màu kem cát sang trọng */}
           <div className="h-8 w-8 rounded-full bg-[#E5DAC2] flex items-center justify-center shrink-0">
             <span className="text-[#52483C] text-sm font-semibold">{initials}</span>
           </div>
           {/* Tên */}
-          <span className="text-white text-sm font-medium hidden sm:block">
+          <span className="text-white text-xs font-semibold hidden sm:block">
             {profile.first_name} {profile.last_name}
           </span>
-          <ChevronsUpDown className="size-3.5 text-white/60 hidden sm:block" />
+          <ChevronsUpDown className="size-3 text-white/60 hidden sm:block" />
         </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="min-w-56 rounded-xl shadow-lg border border-gray-100"
+        className="min-w-56 bg-white rounded-xl shadow-xl border border-slate-100 p-1"
         align="end"
         sideOffset={10}
       >
-        {/* Header */}
+        {/* Header Dropdown */}
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-3 px-3 py-3">
-            <div className="h-10 w-10 rounded-full bg-[#3B82F6] flex items-center justify-center shrink-0">
-              <span className="text-white font-semibold">{initials}</span>
+            {/* ĐỒNG BỘ: Đổi bg-[#3B82F6] thành màu thương hiệu của Navbar hoặc tiệp màu cát */}
+            <div className="h-9 w-9 rounded-full bg-[#335F76] flex items-center justify-center shrink-0">
+              <span className="text-white text-sm font-semibold">{initials}</span>
             </div>
             <div className="grid text-left leading-tight">
-              <span className="font-semibold text-sm text-gray-800">
+              <span className="font-bold text-xs text-slate-800 font-['Lora']">
                 {profile.first_name} {profile.last_name}
               </span>
-              <span className="text-xs text-gray-400">{profile.account?.email}</span>
+              <span className="text-[11px] text-slate-400 font-medium truncate max-w-[140px]">
+                {profile.account?.email ?? profile.email}
+              </span>
             </div>
           </div>
         </DropdownMenuLabel>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-slate-50" />
 
-        <DropdownMenuGroup>
+        {/* Các mục chức năng */}
+        <DropdownMenuGroup className="space-y-0.5">
           <DropdownMenuItem
             onClick={() => navigate("/profile")}
-            className="cursor-pointer gap-2 px-3 py-2"
+            className="cursor-pointer gap-2.5 px-3 py-2 text-xs font-semibold text-slate-600 focus:text-slate-800 focus:bg-slate-50 rounded-lg transition-colors"
           >
-            <BadgeCheck className="size-4 text-gray-500" />
+            <BadgeCheck className="size-4 text-slate-400 group-hover:text-slate-600" />
             <span>Tài khoản</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer gap-2 px-3 py-2">
-            <Bell className="size-4 text-gray-500" />
+          <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2 text-xs font-semibold text-slate-600 focus:text-slate-800 focus:bg-slate-50 rounded-lg transition-colors">
+            <Bell className="size-4 text-slate-400 group-hover:text-slate-600" />
             <span>Thông báo</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="bg-slate-50" />
 
+        {/* Nút Đăng xuất */}
         <DropdownMenuItem
           onClick={handleLogout}
-          className="cursor-pointer gap-2 px-3 py-2 text-red-500 focus:text-red-500 focus:bg-red-50"
+          className="cursor-pointer gap-2.5 px-3 py-2 text-xs font-semibold text-red-500 focus:text-red-500 focus:bg-red-50 rounded-lg transition-colors"
         >
           <LogOut className="size-4" />
           <span>Đăng xuất</span>
