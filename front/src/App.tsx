@@ -9,6 +9,7 @@ import { useAuthStore } from "./stores/useAuthStore";
 import { LoadingOverlay } from "./components/loading/LoadingOverlay";
 import { useProfileStore } from "./stores/useProfileStore";
 import { useEffect } from "react";
+import AdminPage from "./pages/AdminPage";
 
 function App() {
   useInitAuth();
@@ -38,6 +39,8 @@ function App() {
           <Route path="/homepage" element={<HomePage />} />
 
           <Route path="/profile" element={<UserProfile />} />
+
+          <Route path="/admin" element={<AdminPage />} />
           {/* Protected routes */}
         </Routes>
       </BrowserRouter>

@@ -25,7 +25,7 @@ export function ProfileSidebar({ profile, activeTab, onTabChange }: Props) {
   };
 
   return (
-    <div className="w-64 shrink-0 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col gap-6 h-fit">
+    <div className="w-full md:w-64 md:shrink-0 bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col gap-6 h-fit">
 
       {/* Avatar + tên */}
       <div className="flex flex-col items-center gap-3 pb-6 border-b border-slate-100">

@@ -22,19 +22,20 @@ export default function UserProfile() {
   if (!profile) return null;
 
   return (
-    <div className="w-full min-h-screen bg-slate-50">
+    <div className="w-full min-h-screen bg-slate-50 ">
       <Navbar />
-
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        <div className="flex gap-6 items-start">
-
-          <ProfileSidebar
+      <div className="max-w-5xl mx-auto px-6 py-8 ">
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          <div className="w-full md:w-auto">
+            <ProfileSidebar
+            
             profile={profile}
             activeTab={activeTab}
             onTabChange={setActiveTab}
           />
-
-          <div className="flex-1">
+          </div>
+          
+          <div className="flex-1 w-full">
             {activeTab === "info" && (
               <ProfileView profile={profile} loading={loading} onUpdate={updateProfile} />
             )}
@@ -51,9 +52,7 @@ export default function UserProfile() {
                 <p className="text-slate-400 text-sm">Đang phát triển</p>
               </div>
             )}
-           
           </div>
-
         </div>
       </div>
     </div>

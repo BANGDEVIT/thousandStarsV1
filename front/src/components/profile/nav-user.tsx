@@ -1,5 +1,5 @@
 import { useProfileStore } from "@/stores/useProfileStore"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./dropdown-menu"
 import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react"
 import { useNavigate } from "react-router"
 import { useAuthStore } from "@/stores/useAuthStore"
