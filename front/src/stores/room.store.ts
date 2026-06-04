@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { toast } from 'sonner';
-import type { Room, CreateRoomDto, GetRoomsQuery, RoomsResponse } from '@/types/room.type';
+import type { Room, CreateRoomDto, GetRoomsQuery, RoomsResponse, UpdateRoomDto } from '@/types/room.type';
 import * as roomService from '@/services/room.service';
 
 interface RoomStore {
@@ -11,6 +11,7 @@ interface RoomStore {
   loading: boolean;
   fetchRooms: (query?: GetRoomsQuery) => Promise<void>;
   createRoom: (data: CreateRoomDto) => Promise<Room | undefined>;
+  updateRoom: (id: string, data: UpdateRoomDto) => Promise<Room | undefined>;
 }
 
 const getErrorMessage = (error: unknown, defaultMsg: string): string => {
@@ -63,6 +64,21 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       const message = getErrorMessage(error, 'Có lỗi xảy ra khi tạo phòng');
       toast.error(message);
       console.error('createRoom error:', error);
+      return undefined;
+    } finally {
+      set({ loading: false });
+    }
+  },
+  updateRoom: async (id, data) => {
+    set({ loading: true });
+    try {
+      const updated = await roomService.updateRoom(id, data);
+      await get().fetchRooms({ page: get().page });
+      toast.success('Cập nhật phòng thành công');
+      return updated;
+    } catch (error: unknown) {
+      const message = getErrorMessage(error, 'Có lỗi xảy ra khi cập nhật phòng');
+      toast.error(message);
       return undefined;
     } finally {
       set({ loading: false });

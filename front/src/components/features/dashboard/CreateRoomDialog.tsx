@@ -61,7 +61,7 @@ export function CreateRoomDialog() {
         room_type_id: roomTypeId,
         floor,
       });
-      // Toast success đã có trong store
+      toast.success('Thêm thành công')
       setOpen(false);
       resetForm();
     } catch {

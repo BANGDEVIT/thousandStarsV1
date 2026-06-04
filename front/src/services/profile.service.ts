@@ -1,8 +1,16 @@
 import api from "@/lib/axios";
 
+// const profileBase = (): string => {
+//   const roles = useAuthStore.getState().roles;
+//   if (roles.includes("manager") || roles.includes("admin")) {
+//     return "/managers/profile";
+//   }
+//   return "/customers/profile";
+// };
 export const profileService = {
   getProfile: async () => {
   const res = await api.get("/customers/profile");
+  // const res = await api.get(profileBase());
   console.log("profile data:", res.data.data); // xem tất cả field
   return res.data.data;
 },

@@ -1,5 +1,5 @@
 import apiClient from '@/lib/axios';
-import type { Room, CreateRoomDto, RoomsResponse, GetRoomsQuery } from '@/types/room.type';
+import type { Room, CreateRoomDto, RoomsResponse, GetRoomsQuery, UpdateRoomDto } from '@/types/room.type';
 
 // Hàm lấy danh sách phòng (đã có trong context)
 export const getRooms = async (params?: GetRoomsQuery): Promise<RoomsResponse> => {
@@ -13,3 +13,8 @@ export const createRoom = async (data: CreateRoomDto): Promise<Room> => {
   return response.data.data; // { success, data: Room }
 };
 
+export const updateRoom = async (id: string, data: UpdateRoomDto): Promise<Room> => {
+  console.log(id+' '+data);
+  const response = await apiClient.patch(`/rooms/${id}`, data);
+  return response.data.data;
+};

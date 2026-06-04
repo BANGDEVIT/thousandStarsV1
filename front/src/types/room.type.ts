@@ -43,3 +43,10 @@ export interface GetRoomsQuery {
   order?: 'asc' | 'desc';
   search?: string;
 }
+
+export interface UpdateRoomDto {
+  room_number?: string;
+  room_type_id?: string;
+  floor?: number;
+  status?: 'available' | 'occupied' | 'maintenance' | 'cleaning' | 'inactive';
+}

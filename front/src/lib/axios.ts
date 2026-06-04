@@ -28,19 +28,19 @@ api.interceptors.response.use(
     if (
       originalRequest.url.includes("/auth/login") ||
       originalRequest.url.includes("/auth/register") ||
-      originalRequest.url.includes("/auth/refresh")
+      originalRequest.url.includes("/auth/refresh") 
     ) {
       return Promise.reject(error);
     }
 
     originalRequest._retryCount = originalRequest._retryCount || 0;
 
-    if (error.response?.status === 403 && originalRequest._retryCount < 4) {
+    if (error.response?.status === 401 && originalRequest._retryCount < 4) {
       originalRequest._retryCount += 1;
-
+      console.log(originalRequest._retryCount)
       try {
-        const res = await api.post("/auth/refresh", { withCredentials: true });
-        const newAccessToken = res.data.accessToken;
+        const res = await api.post("/auth/refresh", {}, { withCredentials: true });
+        const newAccessToken = res.data.data.accessToken;
 
         useAuthStore.getState().setAccessToken(newAccessToken);
 

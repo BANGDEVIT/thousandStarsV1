@@ -26,7 +26,7 @@ export function RegisterForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signUp(email, password, firstName, lastName, phone);
+    await signUp({email, password, firstName, lastName, phone});
     if (useAuthStore.getState().accessToken) {
       navigate("/signin");
     }
