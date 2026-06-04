@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { useProfileStore } from "@/stores/useProfileStore";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { ProfileView } from "@/components/profile/ProfileView";
-import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
-import { ProfileSidebar } from "@/components/profile/ProfileSidebar";
-import { BookingHistory } from "@/components/profile/BookingHistory";
+import { useProfileStore } from "@/stores/profile.store";
+import { useAuthStore } from "@/stores/auth.store";
+import { ProfileView } from "@/components/features/profile/ProfileView";
+import { ChangePasswordForm } from "@/components/features/profile/ChangePasswordForm";
+import { ProfileSidebar } from "@/components/features/profile/ProfileSidebar";
+import { BookingHistory } from "@/components/features/profile/BookingHistory";
 
-import Navbar from "@/components/nav-bar/navbar";
+import Navbar from "@/components/features/nav-bar/navbar";
 
 
 export default function UserProfile() {

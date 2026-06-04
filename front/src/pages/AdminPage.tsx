@@ -1,12 +1,12 @@
-import { AppSidebar } from "@/components/admin/app-sidebar"
-import { SiteHeader } from "@/components/admin/site-header"
+import { AppSidebar } from "@/components/ui/app-sidebar"
+import { SiteHeader } from "@/components/ui/site-header"
 import {
   SidebarInset,
   SidebarProvider,
-} from "@/components/admin/sidebar"
+} from "@/components/ui/sidebar"
 
-import { TooltipProvider } from "@/components/admin/tooltip"
-import RoomListPage from "@/components/dashboard/RoomListPage"
+import { TooltipProvider } from "@/components/ui/tooltip"
+import {RoomListPage} from "@/components/features/dashboard/RoomListPage"
 
 export default function Page() {
   return (

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { authService } from "@/services/authService";
+import { useAuthStore } from "@/stores/auth.store";
+import { authService } from "@/services/auth.service";
 import { toast } from "sonner";
 
 export const useInitAuth = () => {

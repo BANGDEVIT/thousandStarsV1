@@ -1,6 +1,6 @@
 import { ArrowLeft } from "lucide-react";
 import signinImg from "@/assets/signin.png";
-import { RegisterForm } from "@/components/login-comp/register-form";
+import { RegisterForm } from "@/components/features/login-comp/register-form";
 
 const SignupPage = () => {
   return (

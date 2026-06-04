@@ -1,4 +1,4 @@
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/stores/auth.store";
 import axios from "axios";
 
 // baseURL: import.meta.env.MODE === "development" ? "http://localhost:5001/api" : "/api",

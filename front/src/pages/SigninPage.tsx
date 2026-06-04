@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/login-comp/login-form";
+import { LoginForm } from "@/components/features/login-comp/login-form";
 import { ArrowLeft } from "lucide-react";
 import signinImg from "@/assets/signin.png";
 

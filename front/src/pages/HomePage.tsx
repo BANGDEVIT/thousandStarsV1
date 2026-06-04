@@ -1,4 +1,4 @@
-import Navbar from "@/components/nav-bar/navbar";
+import Navbar from "@/components/features/nav-bar/navbar";
 import React from "react";
 
 const HomePage = () => {

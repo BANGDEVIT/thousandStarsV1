@@ -5,9 +5,9 @@ import { Toaster } from "sonner";
 import SignupPage from "./pages/SignupPage";
 import UserProfile from "./pages/UserProfile";
 import { useInitAuth } from "./stores/useInitAuth";
-import { useAuthStore } from "./stores/useAuthStore";
-import { LoadingOverlay } from "./components/loading/LoadingOverlay";
-import { useProfileStore } from "./stores/useProfileStore";
+import { useAuthStore } from "./stores/auth.store";
+import { LoadingOverlay } from "./components/features/loading/LoadingOverlay";
+import { useProfileStore } from "./stores/profile.store";
 import { useEffect } from "react";
 import AdminPage from "./pages/AdminPage";
 
@@ -21,9 +21,11 @@ function App() {
     if (accessToken) {
       fetchProfile()
     }
-  }, [accessToken])
+  }, [accessToken, fetchProfile])
   
-  if (!isInitialized) return <div>Loading...</div>; 
+  if (!isInitialized) {
+  return <LoadingOverlay />;
+}
 
   return (
     <>
