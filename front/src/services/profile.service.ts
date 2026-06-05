@@ -35,7 +35,7 @@ export const profileService = {
     if (data.id_card_img_back_url) formData.append("id_card_img_back_url", data.id_card_img_back_url);
 
     const res = await api.patch(profileBase(), formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+      //headers: { "Content-Type": "multipart/form-data" },
     });
     return res.data.data;
   },

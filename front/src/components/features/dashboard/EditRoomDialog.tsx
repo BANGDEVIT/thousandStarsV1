@@ -73,12 +73,14 @@ export function EditRoomDialog({ room }: Props) {
   // Lưu thông tin cơ bản
   const handleSaveInfo = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!roomNumber.trim() || !roomTypeId) return;
     const result = await updateRoom(room.id, {
       room_number: roomNumber.trim(),
       room_type_id: roomTypeId,
       floor,
     });
+    console.log("update", result);
     if (result) setOpen(false);
   };
 

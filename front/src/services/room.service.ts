@@ -14,8 +14,9 @@ export const createRoom = async (data: CreateRoomDto): Promise<Room> => {
 };
 
 export const updateRoom = async (id: string, data: UpdateRoomDto): Promise<Room> => {
-  console.log(id+' '+data);
+  console.log(id+' '+"data : ", data);
   const response = await apiClient.patch(`/rooms/${id}`, data);
+  console.log("response:",response);
   return response.data.data;
 };
 

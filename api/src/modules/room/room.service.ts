@@ -221,10 +221,20 @@ export class RoomService {
   }
 
   async update(id: string, updateRoomDto: UpdateRoomDto) {
-    const { room_type_id, floor } = updateRoomDto;
+    const { room_number, room_type_id, floor } = updateRoomDto;
     const room = await this.prisma.room.findUnique({
       where: { id },
     });
+
+    if (room_number && room_number !== room.room_number) {
+      const existingRoom = await this.prisma.room.findFirst({
+        where: { room_number, id: { not: room.id } },
+      });
+
+      if (existingRoom) {
+        throw new BadRequestException('Room number has been already existed');
+      }
+    }
 
     if (!room) {
       throw new NotFoundException('Room not found');
@@ -237,6 +247,7 @@ export class RoomService {
     const updateRoom = await this.prisma.room.update({
       where: { id },
       data: {
+        ...(room_number && { room_number }),
         ...(room_type_id && { room_type_id }),
         ...(floor != undefined && { floor }),
       },
