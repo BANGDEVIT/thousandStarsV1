@@ -1,37 +1,29 @@
 import api from "@/lib/axios";
 
-export const authService = {
-  signUp: async (
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-    phone?: string,
-  ) => {
-    const res = await api.post(
-      "/auth/register",
-      { email, password, phone, firstName, lastName },
-      { withCredentials: true },
-    );
+import type {
+  LoginPayload,
+  RegisterPayload,
+  AuthResponse,
+  RefreshTokenResponse,
+} from "../types/auth";
 
-    return res.data;
+export const authApi = {
+  login: async (payload: LoginPayload): Promise<AuthResponse> => {
+    const { data } = await api.post<AuthResponse>("/auth/login", payload);
+    return data;
   },
 
-  signIn: async (username: string, password: string) => {
-    const res = await api.post(
-      "auth/login",
-      { username, password },
-      { withCredentials: true },
-    );
-    return res.data; // access token
+  register: async (payload: RegisterPayload): Promise<AuthResponse> => {
+    const { data } = await api.post<AuthResponse>("/auth/register", payload);
+    return data;
   },
 
-  signOut: async () => {
-    return api.post("/auth/logout", { withCredentials: true });
+  refreshToken: async (): Promise<RefreshTokenResponse> => {
+    const { data } = await api.post<RefreshTokenResponse>("/auth/refresh");
+    return data;
   },
 
-  refresh: async () => {
-    const res = await api.post("/auth/refresh", { withCredentials: true });
-    return res.data.accessToken;
+  logout: async (): Promise<void> => {
+    await api.post("/auth/logout");
   },
 };

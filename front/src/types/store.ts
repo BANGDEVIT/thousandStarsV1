@@ -1,21 +1,22 @@
-import type { User } from "./user";
+import type { LoginPayload, RegisterPayload } from "./auth";
+import type { AuthUser } from "./user";
 
 export interface AuthState {
+  user: AuthUser | null;
   accessToken: string | null;
-  roles: string[];
-  user: User | null;
-  loading: boolean;
+  isLoading: boolean;
+  error: string | null;
+  isAuthenticated: boolean;
 
+  login: (payload: LoginPayload) => Promise<void>;
+  register: (payload: RegisterPayload) => Promise<void>;
   setAccessToken: (accessToken: string) => void;
-  // clearState: () => void;
-  signUp: (
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-    phone: string,
-  ) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  // refresh: () => Promise<void>;
+  logout: () => Promise<void>;
+  refresh: () => Promise<void>;
+  clearError: () => void;
+
+  // ← Helper tiện dùng
+  hasRole: (role: string) => boolean;
+  isAdmin: () => boolean;
+  isManager: () => boolean;
 }
