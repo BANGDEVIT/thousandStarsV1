@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { toast } from 'sonner';
 import type { Room, CreateRoomDto, GetRoomsQuery, RoomsResponse, UpdateRoomDto } from '@/types/room.type';
 import * as roomService from '@/services/room.service';
+import axios from 'axios';
 
 interface RoomStore {
   rooms: Room[];
@@ -12,18 +13,16 @@ interface RoomStore {
   fetchRooms: (query?: GetRoomsQuery) => Promise<void>;
   createRoom: (data: CreateRoomDto) => Promise<Room | undefined>;
   updateRoom: (id: string, data: UpdateRoomDto) => Promise<Room | undefined>;
+  deactiveRoom: (id: string)=>Promise<boolean>;
 }
 
 const getErrorMessage = (error: unknown, defaultMsg: string): string => {
   if (error && typeof error === 'object' && 'response' in error) {
     const responseError = error as { response?: { data?: { message?: string } } };
-    if (responseError.response?.data?.message) {
-      return responseError.response.data.message;
-    }
+    if (responseError.response?.data?.message) return responseError.response.data.message;
   }
-  if (error instanceof Error) {
-    return error.message;
-  }
+  if (axios.isAxiosError(error) && error.response?.data?.message) return error.response.data.message;
+  if (error instanceof Error) return error.message;
   return defaultMsg;
 };
 
@@ -84,4 +83,20 @@ export const useRoomStore = create<RoomStore>((set, get) => ({
       set({ loading: false });
     }
   },
+  deactiveRoom: async(id) => {
+      set({ loading: true });
+      try {
+        await roomService.deleteRoom(id);
+        await get().fetchRooms(); 
+        toast.success('Hủy kích hoạt phòng thành công');
+        return true; 
+      } catch (error: unknown) {
+        const message = getErrorMessage(error, 'Có lỗi xảy ra khi hủy kích hoạt');
+        toast.error(message);
+        console.error('deleteRoomType error:', error);
+        return false; 
+      } finally {
+        set({ loading: false });
+      }
+    },
 }));

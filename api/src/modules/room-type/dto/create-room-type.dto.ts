@@ -23,6 +23,7 @@ export enum Amenity {
   PARKING = 'parking',
   SAFE = 'safe', // két sắt
   HAIR_DRYER = 'hair_dryer',
+  BATHTUB = 'bathtub',
 }
 
 export class CreateRoomTypeDto {

@@ -1,3 +1,4 @@
+import type { RoomType } from "./roomtype.type";
 export interface Room {
   id: string;
   room_number: string;
@@ -7,17 +8,6 @@ export interface Room {
   created_at: string;
   updated_at: string;
   images: string[];
-}
-
-export interface RoomType {
-  id: string;
-  name: string;
-  base_price: number;
-  capacity: number;
-  bed_type: string;
-  amenities: string[];
-  created_at?: string;
-  updated_at?: string;
 }
 
 export interface CreateRoomDto {
@@ -37,10 +27,10 @@ export interface RoomsResponse {
 export interface GetRoomsQuery {
   page?: number;
   limit?: number;
-  status?: string;
+  status?: 'available' | 'occupied' | 'maintenance' | 'cleaning' | 'inactive';
   room_type_id?: string;
   floor?: number;
-  sortBy?: string;
+  sortBy?: 'room_number' | 'floor' | 'status' | 'created_at';
   order?: 'asc' | 'desc';
   search?: string;
 }

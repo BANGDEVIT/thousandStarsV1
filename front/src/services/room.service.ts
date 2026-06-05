@@ -13,10 +13,10 @@ export const createRoom = async (data: CreateRoomDto): Promise<Room> => {
   return response.data.data; // { success, data: Room }
 };
 
+
+
 export const updateRoom = async (id: string, data: UpdateRoomDto): Promise<Room> => {
-  console.log(id+' '+"data : ", data);
   const response = await apiClient.patch(`/rooms/${id}`, data);
-  console.log("response:",response);
   return response.data.data;
 };
 
@@ -45,3 +45,8 @@ export const reorderRoomImages = async (id: string, imageUrls: string[]): Promis
   const response = await apiClient.patch(`/rooms/${id}/images/reorder`, { imageUrls });
   return response.data.data;
 };
+
+export const deleteRoom = async (id: string)=>{
+  const response = await apiClient.delete(`/rooms/${id}`);
+  return response.data.data;
+}

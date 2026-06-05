@@ -28,3 +28,22 @@ export interface BookingQuery {
   sortBy?: string;
   order?: "asc" | "desc";
 }
+export interface CreateBookingDto {
+  customer_id: string;
+  room_ids: string[];
+  check_in_date: string;
+  check_out_date: string;
+  booking_type: string;
+  override_prices?: Record<string, number>; 
+}
+export interface BookingsResponse {
+  data: Booking[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+export interface UpdateRoomDto {
+  from_date?: string;
+  to_date?: string;
+}

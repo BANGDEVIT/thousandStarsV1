@@ -12,7 +12,7 @@ import {
   SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { useRoomStore } from '@/stores/room.store';
-import { useRoomTypeStore } from '@/stores/roomType.store';
+import { useRoomTypeStore } from '@/stores/roomtype.store';
 import * as roomService from '@/services/room.service';
 import type { Room } from '@/types/room.type';
 import { Pencil, Upload, X, Star, Loader2, ImageOff } from 'lucide-react';

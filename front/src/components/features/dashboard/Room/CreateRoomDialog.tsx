@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useRoomStore } from '@/stores/room.store';
-import { useRoomTypeStore } from '@/stores/roomType.store';
+import { useRoomTypeStore } from '@/stores/roomtype.store';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
