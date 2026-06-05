@@ -16,6 +16,7 @@ import { Prisma } from '@prisma/client';
 import { Amenity } from '../room-type/dto/create-room-type.dto';
 import { UpdateRoomStatusDto } from './dto/update-room-status.dto';
 import { S3Service } from '../../common/s3/s3.service';
+import { QueryAvailableRoomDto } from './dto/query-available-room.dto';
 
 @Injectable()
 export class RoomService {
@@ -218,6 +219,95 @@ export class RoomService {
     }
 
     return this.transformRoom(room);
+  }
+
+  async findAvailable(query: QueryAvailableRoomDto) {
+    const {
+      check_in_date,
+      check_out_date,
+      room_type_id,
+      capacity,
+      page = 1,
+      limit = 10,
+    } = query;
+
+    const checkIn = new Date(check_in_date);
+    const checkOut = new Date(check_out_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (checkIn >= checkOut) {
+      throw new BadRequestException('Check-out date must be after check-in');
+    }
+
+    if (checkIn < today) {
+      throw new BadRequestException('Check-in date cannot be in the past');
+    }
+
+    const bookedRoomIds = await this.prisma.bookingRoom.findMany({
+      where: {
+        booking: {
+          status: { notIn: ['cancelled', 'checked_out'] },
+          check_in_date: { lt: checkOut },
+          check_out_date: { gt: checkIn },
+        },
+      },
+      select: { room_id: true },
+    });
+
+    const skip = (page - 1) * limit;
+    const where: Prisma.RoomWhereInput = {
+      status: 'available',
+      id: { notIn: bookedRoomIds.map((bookingRoom) => bookingRoom.room_id) },
+      ...(room_type_id && { room_type_id }),
+      ...(capacity && { room_type: { capacity: { gte: capacity } } }),
+    };
+
+    const [roomsRaw, total] = await Promise.all([
+      this.prisma.room.findMany({
+        where,
+        take: limit,
+        skip,
+        select: {
+          id: true,
+          room_number: true,
+          floor: true,
+          status: true,
+          created_at: true,
+          updated_at: true,
+          images: true,
+          room_type: {
+            select: {
+              id: true,
+              name: true,
+              base_price: true,
+              capacity: true,
+              bed_type: true,
+              amenities: true,
+            },
+          },
+        },
+        orderBy: [{ room_type: { base_price: 'asc' } }, { floor: 'asc' }],
+      }),
+      this.prisma.room.count({ where }),
+    ]);
+
+    const nights = Math.ceil(
+      (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    return {
+      data: roomsRaw.map((room) => this.transformRoom(room)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      search_info: {
+        check_in_date,
+        check_out_date,
+        nights,
+      },
+    };
   }
 
   async update(id: string, updateRoomDto: UpdateRoomDto) {

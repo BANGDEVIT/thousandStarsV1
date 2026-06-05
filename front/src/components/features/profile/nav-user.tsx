@@ -1,90 +1,56 @@
-import { useProfileStore } from "@/stores/profile.store"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./dropdown-menu"
-import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from "lucide-react"
-import { useNavigate } from "react-router"
-import { useAuthStore } from "@/stores/auth.store"
+import { LogOut, User } from "lucide-react";
+import { useNavigate } from "react-router";
+import { useAuthStore } from "@/stores/auth.store";
+import { useProfileStore } from "@/stores/profile.store";
 
 export function NavUser() {
-  const { profile } = useProfileStore()
-  const { signOut } = useAuthStore()
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const signOut = useAuthStore((state) => state.signOut);
+  const profile = useProfileStore((state) => state.profile);
 
-  if (!profile) return null
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/homepage");
+  };
 
-  const handleLogout = async () => {
-    await signOut()
-    navigate("/signin")
+  if (!accessToken) {
+    return (
+      <button
+        type="button"
+        onClick={() => navigate("/signin")}
+        className="rounded-full bg-[#E5DAC2] px-5 py-2 text-sm font-bold text-[#0D2535] transition hover:bg-white"
+      >
+        Đăng nhập
+      </button>
+    );
   }
 
-  const initials = profile.first_name?.charAt(0) ?? profile.last_name?.charAt(0) ?? "?"
+  const displayName =
+    profile?.display_name ||
+    profile?.full_name ||
+    [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") ||
+    "Profile";
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 rounded-full pl-1 pr-3 py-1 hover:bg-white/10 cursor-pointer outline-none transition-colors">
-          {/* Avatar tròn ngoài Navbar - Giữ màu kem cát sang trọng */}
-          <div className="h-8 w-8 rounded-full bg-[#E5DAC2] flex items-center justify-center shrink-0">
-            <span className="text-[#52483C] text-sm font-semibold">{initials}</span>
-          </div>
-          {/* Tên */}
-          <span className="text-white text-xs font-semibold hidden sm:block">
-            {profile.first_name} {profile.last_name}
-          </span>
-          <ChevronsUpDown className="size-3 text-white/60 hidden sm:block" />
-        </button>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent
-        className="min-w-56 bg-white rounded-xl shadow-xl border border-slate-100 p-1"
-        align="end"
-        sideOffset={10}
+    <div className="flex items-center justify-end gap-2">
+      <button
+        type="button"
+        onClick={() => navigate("/profile")}
+        className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
       >
-        {/* Header Dropdown */}
-        <DropdownMenuLabel className="p-0 font-normal">
-          <div className="flex items-center gap-3 px-3 py-3">
-            {/* ĐỒNG BỘ: Đổi bg-[#3B82F6] thành màu thương hiệu của Navbar hoặc tiệp màu cát */}
-            <div className="h-9 w-9 rounded-full bg-[#335F76] flex items-center justify-center shrink-0">
-              <span className="text-white text-sm font-semibold">{initials}</span>
-            </div>
-            <div className="grid text-left leading-tight">
-              <span className="font-bold text-xs text-slate-800 font-['Lora']">
-                {profile.first_name} {profile.last_name}
-              </span>
-              <span className="text-[11px] text-slate-400 font-medium truncate max-w-[140px]">
-                {profile.account?.email ?? profile.email}
-              </span>
-            </div>
-          </div>
-        </DropdownMenuLabel>
-
-        <DropdownMenuSeparator className="bg-slate-50" />
-
-        {/* Các mục chức năng */}
-        <DropdownMenuGroup className="space-y-0.5">
-          <DropdownMenuItem
-            onClick={() => navigate("/profile")}
-            className="cursor-pointer gap-2.5 px-3 py-2 text-xs font-semibold text-slate-600 focus:text-slate-800 focus:bg-slate-50 rounded-lg transition-colors"
-          >
-            <BadgeCheck className="size-4 text-slate-400 group-hover:text-slate-600" />
-            <span>Tài khoản</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer gap-2.5 px-3 py-2 text-xs font-semibold text-slate-600 focus:text-slate-800 focus:bg-slate-50 rounded-lg transition-colors">
-            <Bell className="size-4 text-slate-400 group-hover:text-slate-600" />
-            <span>Thông báo</span>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-
-        <DropdownMenuSeparator className="bg-slate-50" />
-
-        {/* Nút Đăng xuất */}
-        <DropdownMenuItem
-          onClick={handleLogout}
-          className="cursor-pointer gap-2.5 px-3 py-2 text-xs font-semibold text-red-500 focus:text-red-500 focus:bg-red-50 rounded-lg transition-colors"
-        >
-          <LogOut className="size-4" />
-          <span>Đăng xuất</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
+        <User className="h-4 w-4" />
+        <span className="max-w-32 truncate">{displayName}</span>
+      </button>
+      <button
+        type="button"
+        onClick={handleSignOut}
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white transition hover:bg-white/10"
+        aria-label="Đăng xuất"
+        title="Đăng xuất"
+      >
+        <LogOut className="h-4 w-4" />
+      </button>
+    </div>
+  );
 }

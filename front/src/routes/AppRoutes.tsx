@@ -3,6 +3,8 @@ import SignupPage from "@/pages/SignupPage";
 import UserProfile from "@/pages/UserProfile";
 import HomePage from "@/pages/HomePage";
 import AdminPage from "@/pages/AdminPage";
+import RoomsPage from "@/pages/RoomsPage";
+import RoomDetailPage from "@/pages/RoomDetailPage";
 
 import { Navigate, Route, Routes } from "react-router";
 
@@ -35,6 +37,16 @@ export function AppRoutes() {
       <Route
         path="/homepage"
         element={<HomePage />}
+      />
+
+      <Route
+        path="/rooms"
+        element={<RoomsPage />}
+      />
+
+      <Route
+        path="/rooms/:id"
+        element={<RoomDetailPage />}
       />
 
       <Route

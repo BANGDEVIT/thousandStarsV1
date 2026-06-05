@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { toast } from "sonner";
 import { bookingService } from "@/services/booking.service";
-import type{ BookingState } from "@/types/booking.type";
+import type { BookingState } from "@/types/booking.type";
 
 
 export const useBookingStore = create<BookingState>((set) => ({
@@ -13,7 +13,7 @@ export const useBookingStore = create<BookingState>((set) => ({
 
   fetchBookings: async (query = {}) => {
     try {
-      set({ loading: true });
+      set({ loading: true, bookings: [] });
       const data = await bookingService.getMyBookings(query);
       set({
         bookings: data.data,
@@ -25,6 +25,20 @@ export const useBookingStore = create<BookingState>((set) => ({
       toast.error("Không thể tải lịch sử đặt phòng");
     } finally {
       set({ loading: false });
+    }
+  },
+
+  cancelBooking: async (bookingId) => {
+    try {
+      const cancelled = await bookingService.cancelBooking(bookingId);
+      set((state) => ({
+        bookings: state.bookings.map((booking) =>
+          booking.id === bookingId ? cancelled : booking,
+        ),
+      }));
+      toast.success("Hủy phòng thành công!");
+    } catch {
+      toast.error("Không thể hủy phòng. Vui lòng thử lại");
     }
   },
 }));

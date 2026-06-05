@@ -15,9 +15,9 @@ export class CreateBookingDto {
     example: 'uuid-123',
     description: 'UUID khách hàng',
   })
-  @IsNotEmpty({ message: 'Customer_id is not emmty' })
+  @IsOptional()
   @IsUUID('4', { message: 'customer_id is no valid' })
-  customer_id: string;
+  customer_id?: string;
 
   @ApiProperty({
     example: ['uuid-room-1', 'uuid-room-2', 'uuid-room-3'],

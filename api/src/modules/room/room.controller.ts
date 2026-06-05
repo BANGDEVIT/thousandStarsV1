@@ -33,12 +33,27 @@ import { QueryRoomDto } from './dto/query-room.dto';
 import { UpdateRoomStatusDto } from './dto/update-room-status.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Public } from '../../common/decorators/public.decorator';
+import { QueryAvailableRoomDto } from './dto/query-available-room.dto';
 
 @Controller('rooms')
 @ApiTags('rooms')
 @ApiBearerAuth('JWT-auth')
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
+
+  @Get('available')
+  @HttpCode(200)
+  @Public()
+  @ApiOperation({
+    summary: 'Find available rooms by date range',
+    description:
+      'Public extension endpoint. Existing GET /rooms behavior is unchanged.',
+  })
+  @ApiResponse({ status: 200, description: 'Available rooms list' })
+  @ApiResponse({ status: 400, description: 'Invalid date range' })
+  async findAvailable(@Query() query: QueryAvailableRoomDto) {
+    return this.roomService.findAvailable(query);
+  }
 
   @Post()
   @HttpCode(201)
@@ -100,7 +115,7 @@ export class RoomController {
 
   @Get(':id')
   @HttpCode(200)
-  @Roles('staff', 'manager', 'admin')
+  @Public()
   @ApiOperation({
     summary: 'Xem chi tiết phòng',
     description: 'Xem thông tin chi tiết của 1 phòng',

@@ -1,20 +1,24 @@
+import { useEffect } from "react";
 import Navbar from "@/components/features/nav-bar/navbar";
-import { HeroSection } from "@/components/features/homepage/HeroSection";
-import { FeaturedRoomsSection } from "@/components/features/homepage/FeaturedRoomsSection";
-import { AmenitiesSection } from "@/components/features/homepage/AmenitiesSection";
-import { TestimonialsSection } from "@/components/features/homepage/TestimonialsSection";
-import { CtaSection } from "@/components/features/homepage/CtaSection";
 import { FooterSection } from "@/components/features/homepage/FooterSection";
+import { HotelFeaturedRoomsSection } from "@/components/features/homepage/HotelFeaturedRoomsSection";
+import { HotelSearchHeroSection } from "@/components/features/homepage/HotelSearchHeroSection";
+import { useHomepageStore } from "@/stores/homepage.store";
 
 const HomePage = () => {
+  const { featuredRooms, loading, fetchFeaturedRooms } = useHomepageStore();
+
+  useEffect(() => {
+    fetchFeaturedRooms();
+  }, [fetchFeaturedRooms]);
+
   return (
-    <div className="w-full min-h-screen">
+    <div className="w-full min-h-screen bg-white">
       <Navbar />
-      <HeroSection />
-      <FeaturedRoomsSection />
-      <AmenitiesSection />
-      <TestimonialsSection />
-      <CtaSection />
+      <main>
+        <HotelSearchHeroSection rooms={featuredRooms} />
+        <HotelFeaturedRoomsSection loading={loading} rooms={featuredRooms} />
+      </main>
       <FooterSection />
     </div>
   );

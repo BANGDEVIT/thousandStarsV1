@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chào mừng đến {{hotelName}}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #F7F7F5; color: #0A0A0A; }
+    .wrapper { padding: 32px 16px; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: #1B3A5C; padding: 40px; text-align: center; }
+    .logo-box { width: 52px; height: 52px; background: #C9A84C; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .logo-text { color: #1B3A5C; font-size: 20px; font-weight: 800; line-height: 52px; }
+    .header h1 { color: #C9A84C; font-size: 24px; font-weight: 600; margin-bottom: 6px; }
+    .header p { color: rgba(255,255,255,0.7); font-size: 14px; }
+    .body { padding: 40px; }
+    .greeting { font-size: 18px; font-weight: 600; color: #0A0A0A; margin-bottom: 12px; }
+    .text { font-size: 14px; color: #64748B; line-height: 1.7; margin-bottom: 16px; }
+    .features { display: grid; gap: 12px; margin: 24px 0; }
+    .feature-item { background: #F7F7F5; border-radius: 10px; padding: 16px 20px; display: flex; align-items: flex-start; gap: 14px; }
+    .feature-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+    .feature-title { font-size: 14px; font-weight: 600; color: #0A0A0A; margin-bottom: 3px; }
+    .feature-desc { font-size: 13px; color: #64748B; }
+    .btn-wrap { text-align: center; margin: 28px 0; }
+    .btn { display: inline-block; background: #1B3A5C; color: #fff; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-size: 15px; font-weight: 500; }
+    .divider { border: none; border-top: 1px solid #E2E2D8; margin: 24px 0; }
+    .info-box { background: #1B3A5C; border-radius: 10px; padding: 20px 24px; margin-top: 20px; }
+    .info-box p { color: rgba(255,255,255,0.75); font-size: 13px; margin-bottom: 6px; }
+    .info-box strong { color: #C9A84C; }
+    .footer { background: #F0F0EA; padding: 24px 40px; text-align: center; }
+    .footer p { font-size: 12px; color: #64748B; line-height: 1.6; }
+    .footer a { color: #1B3A5C; text-decoration: none; }
+    .gold { color: #C9A84C; }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-box">
+        <span class="logo-text">AH</span>
+      </div>
+      <h1>🏨 {{hotelName}}</h1>
+      <p>Chào mừng bạn đến với gia đình chúng tôi</p>
+    </div>
+
+    <!-- Body -->
+    <div class="body">
+      <p class="greeting">Xin chào, <span class="gold">{{customerName}}</span>! 👋</p>
+      <p class="text">
+        Cảm ơn bạn đã đăng ký tài khoản tại <strong>{{hotelName}}</strong>.
+        Chúng tôi rất vui được chào đón bạn. Tài khoản của bạn đã được
+        tạo thành công với địa chỉ email <strong>{{email}}</strong>.
+      </p>
+
+      <!-- Features -->
+      <div class="features">
+        <div class="feature-item">
+          <div class="feature-icon">📅</div>
+          <div>
+            <p class="feature-title">Đặt phòng online</p>
+            <p class="feature-desc">Tìm kiếm và đặt phòng mọi lúc, mọi nơi dễ dàng</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">⭐</div>
+          <div>
+            <p class="feature-title">Tích điểm thưởng</p>
+            <p class="feature-desc">Mỗi lần lưu trú bạn sẽ nhận điểm thưởng đổi ưu đãi</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📋</div>
+          <div>
+            <p class="feature-title">Quản lý booking</p>
+            <p class="feature-desc">Xem lịch sử đặt phòng và hóa đơn của bạn</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-wrap">
+        <a href="{{loginUrl}}" class="btn">Đăng nhập ngay →</a>
+      </div>
+
+      <hr class="divider">
+
+      <div class="info-box">
+        <p>📧 Email đăng nhập: <strong>{{email}}</strong></p>
+        <p>🔐 Nếu bạn không tạo tài khoản này, vui lòng bỏ qua email này</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p><strong>{{hotelName}}</strong></p>
+      <p>{{hotelAddress}} | ☎ {{hotelPhone}}</p>
+      <p style="margin-top: 8px">
+        © {{currentYear}} {{hotelName}}. All rights reserved.
+      </p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

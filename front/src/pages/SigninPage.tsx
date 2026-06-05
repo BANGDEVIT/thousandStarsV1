@@ -46,7 +46,7 @@ const SigninPage = () => {
       <div className="flex flex-col gap-4 p-6 md:p-10 bg-[#E5DAC2]">
         <div className="flex justify-center gap-2 md:justify-start">
           <div className="w-full flex justify-start gap-2">
-            <a href="#" className="flex items-center gap-2 font-medium self-start">
+            <a href="/homepage" className="flex items-center gap-2 font-medium self-start">
               <div className="flex size-6 items-center justify-center rounded-md bg-[#E5DAC2] !text-[#52483C] text-primary-foreground">
                 <ArrowLeft className="size-4" />
               </div>

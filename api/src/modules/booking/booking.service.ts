@@ -114,11 +114,12 @@ export class BookingService {
       );
     }
 
-    // Check phòng inactive
-    const inactiveRooms = rooms.filter((r) => r.status === 'inactive');
-    if (inactiveRooms.length > 0) {
+    // Only available rooms can be booked from the customer flow. Once booked,
+    // they are moved out of status=available search results.
+    const unavailableRooms = rooms.filter((r) => r.status !== 'available');
+    if (unavailableRooms.length > 0) {
       throw new BadRequestException(
-        `Phòng ${inactiveRooms.map((r) => r.room_number).join(', ')} đã bị vô hiệu hóa`,
+        `Phòng ${unavailableRooms.map((r) => r.room_number).join(', ')} không còn trống`,
       );
     }
 
@@ -205,6 +206,19 @@ export class BookingService {
             override_prices?.[room.id] ?? Number(room.room_type.base_price),
         })),
       });
+
+      await tx.room.updateMany({
+        where: { id: { in: room_ids } },
+        data: { status: 'occupied' },
+      });
+
+      await this.createRoomStatusHistory(
+        tx,
+        room_ids,
+        'available',
+        'occupied',
+        accountId,
+      );
 
       return newBooking;
     });
@@ -639,7 +653,8 @@ export class BookingService {
 
       const roomIds = bookingRooms.map((br) => br.room_id);
 
-      // Chỉ đổi phòng nếu đang occupied
+      // Customer cancellation releases rooms reserved by this booking so they
+      // can appear again in status=available search results.
       const occupiedRooms = await tx.room.findMany({
         where: {
           id: { in: roomIds },
