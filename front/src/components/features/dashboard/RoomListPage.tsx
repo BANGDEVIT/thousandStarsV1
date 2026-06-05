@@ -1,9 +1,9 @@
-// src/components/dashboard/RoomListPage.tsx
 import { useEffect } from 'react';
 import { useRoomStore } from '@/stores/room.store';
 import { GenericTable } from '@/components/features/dashboard/GenericTable';
 import { CreateRoomDialog } from '@/components/features/dashboard/CreateRoomDialog';
 import { EditRoomDialog } from '@/components/features/dashboard/EditRoomDialog';
+import { RoomDetailDialog } from '@/components/features/dashboard/RoomDitailDialog';
 import { Badge } from '@/components/ui/badge';
 import type { Room } from '@/types/room.type';
 
@@ -19,12 +19,12 @@ export function RoomListPage() {
   const { rooms, loading, fetchRooms, totalPages, page } = useRoomStore();
 
   useEffect(() => {
-    fetchRooms()
-  }, [fetchRooms]);
+    fetchRooms();
+  }, []);
 
   const columns = [
     { key: 'room_number', header: 'Số phòng' },
-    { key: 'floor', header: 'Tầng' },
+    { key: 'floor',       header: 'Tầng' },
     {
       key: 'status',
       header: 'Trạng thái',
@@ -48,14 +48,13 @@ export function RoomListPage() {
       key: 'actions',
       header: '',
       render: (row: Room) => (
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-0.5">
+          <RoomDetailDialog room={row} />
           <EditRoomDialog room={row} />
         </div>
       ),
     },
   ];
-
-  const toolbar = <CreateRoomDialog />;
 
   return (
     <div className="p-6">
@@ -67,7 +66,7 @@ export function RoomListPage() {
         totalPages={totalPages}
         onPageChange={(newPage) => fetchRooms({ page: newPage })}
         keyExtractor={(row) => row.id}
-        toolbar={toolbar}
+        toolbar={<CreateRoomDialog />}
       />
     </div>
   );

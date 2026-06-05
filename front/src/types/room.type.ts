@@ -6,6 +6,7 @@ export interface Room {
   room_type: RoomType;
   created_at: string;
   updated_at: string;
+  images: string[];
 }
 
 export interface RoomType {
@@ -49,4 +50,8 @@ export interface UpdateRoomDto {
   room_type_id?: string;
   floor?: number;
   status?: 'available' | 'occupied' | 'maintenance' | 'cleaning' | 'inactive';
+}
+
+export interface UpdateRoomStatusDto {
+  status: 'available' | 'occupied' | 'maintenance' | 'cleaning' | 'inactive';
 }

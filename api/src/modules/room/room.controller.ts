@@ -287,4 +287,14 @@ export class RoomController {
   ) {
     return this.roomService.removeImages(id, body.imageUrls);
   }
+
+  // BE — thêm vào room.controller.ts
+  @Patch(':id/images/reorder')
+  @Roles('manager', 'admin')
+  async reorderImages(
+    @Param('id') id: string,
+    @Body() body: { imageUrls: string[] },
+  ) {
+    return this.roomService.reorderImages(id, body.imageUrls);
+  }
 }

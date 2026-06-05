@@ -430,4 +430,14 @@ export class RoomService {
 
     return this.transformRoom(updateRoom);
   }
+
+  // BE — room.service.ts
+  async reorderImages(id: string, imageUrls: string[]) {
+    // Chỉ update thứ tự, không thêm/xóa
+    // Tùy data model — nếu images là jsonb array thì:
+    return this.prisma.room.update({
+      where: { id },
+      data: { images: imageUrls },
+    });
+  }
 }
