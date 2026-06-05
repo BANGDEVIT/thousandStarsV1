@@ -1,28 +1,45 @@
-import { NavigationMenu_1 } from "@/components/features/nav-bar/nav-list";
+import { Link } from "react-router";
 import { NavUser } from "@/components/features/profile/nav-user";
+
+const navItems = [
+  { label: "Trang chủ", to: "/homepage" },
+  { label: "Phòng", to: "/rooms" },
+  { label: "Về THOUSAND STARS", to: "/about" },
+  { label: "Liên hệ", to: "/docs" },
+];
 
 export default function Navbar() {
   return (
-    // 1. Thêm 'flex-wrap' và 'gap-y-4' để khi rớt hàng không bị dính vào nhau
-    <div className="bg-[#335F76] shadow-sm p-6 flex flex-wrap items-center w-full justify-between gap-y-4">
-      
-      {/* 2. LOGO: Trên mobile/tablet chiếm 50% hàng trên, lên md mới trả về flex-1 */}
-      <div className="w-1/2 md:flex-1 flex justify-start order-1">
-        <span className="text-white text-3xl font-bold font-['Lora']">
-          <a href="/homePage">THOUSAND STARS</a>
-        </span>
-      </div>
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#335F76] shadow-sm">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-8">
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            to="/homepage"
+            className="font-['Lora'] text-2xl font-bold tracking-wide text-white md:text-3xl"
+          >
+            THOUSAND STARS
+          </Link>
+          <div className="md:hidden">
+            <NavUser />
+          </div>
+        </div>
 
-      {/* 4. MENU: Mặc định chiếm full 100% (bắt buộc rớt xuống hàng dưới), lên md mới trở lại ban đầu */}
-      <div className="w-full md:w-auto md:flex-none flex justify-center order-3 md:order-2">
-        <NavigationMenu_1 />
-      </div>
+        <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-semibold text-white md:justify-center">
+          {navItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="rounded-full px-1 py-1 transition hover:text-[#E5DAC2]"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
 
-      {/* 3. USER AVATAR: Chiếm 50% còn lại của hàng trên, lên md trả về flex-1 */}
-      <div className="w-1/2 md:flex-1 flex justify-end order-2 md:order-3">
-        <NavUser />
+        <div className="hidden md:flex md:min-w-44 md:justify-end">
+          <NavUser />
+        </div>
       </div>
-
-    </div>
+    </header>
   );
 }

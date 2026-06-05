@@ -17,6 +17,7 @@ import { Amenity } from '../room-type/dto/create-room-type.dto';
 import { UpdateRoomStatusDto } from './dto/update-room-status.dto';
 import { S3Service } from '../../common/s3/s3.service';
 import { QueryAvailableRoomDto } from './dto/query-available-room.dto';
+import { QueryRoomAvailabilityDto } from './dto/query-room-availability.dto';
 
 @Injectable()
 export class RoomService {
@@ -307,6 +308,73 @@ export class RoomService {
         check_out_date,
         nights,
       },
+    };
+  }
+
+  async checkAvailability(id: string, query: QueryRoomAvailabilityDto) {
+    const { check_in_date, check_out_date } = query;
+    const room = await this.prisma.room.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        room_number: true,
+        status: true,
+      },
+    });
+
+    if (!room) {
+      throw new NotFoundException('Room does not exist');
+    }
+
+    const checkIn = new Date(check_in_date);
+    const checkOut = new Date(check_out_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (checkIn >= checkOut) {
+      throw new BadRequestException('Check-out date must be after check-in');
+    }
+
+    if (checkIn < today) {
+      throw new BadRequestException('Check-in date cannot be in the past');
+    }
+
+    if (['inactive', 'maintenance', 'cleaning'].includes(room.status)) {
+      return {
+        room_id: room.id,
+        room_number: room.room_number,
+        available: false,
+        reason: 'ROOM_STATUS_UNAVAILABLE',
+      };
+    }
+
+    const overlappingBooking = await this.prisma.bookingRoom.findFirst({
+      where: {
+        room_id: id,
+        booking: {
+          status: { notIn: ['cancelled', 'checked_out'] },
+          check_in_date: { lt: checkOut },
+          check_out_date: { gt: checkIn },
+        },
+      },
+      select: {
+        booking: {
+          select: {
+            id: true,
+            check_in_date: true,
+            check_out_date: true,
+            status: true,
+          },
+        },
+      },
+    });
+
+    return {
+      room_id: room.id,
+      room_number: room.room_number,
+      available: !overlappingBooking,
+      reason: overlappingBooking ? 'DATE_RANGE_CONFLICT' : null,
+      conflicting_booking: overlappingBooking?.booking ?? null,
     };
   }
 

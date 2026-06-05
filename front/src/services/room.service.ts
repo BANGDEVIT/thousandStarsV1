@@ -3,6 +3,7 @@ import type {
   CreateRoomDto,
   GetRoomsQuery,
   Room,
+  RoomAvailabilityResponse,
   RoomsResponse,
   UpdateRoomDto,
   UpdateRoomStatusDto,
@@ -106,6 +107,29 @@ export const getRooms = async (
   }
 };
 
+export const getAvailableRooms = async (params: {
+  check_in_date: string;
+  check_out_date: string;
+  page?: number;
+  limit?: number;
+  room_type_id?: string;
+  capacity?: number;
+}): Promise<RoomsResponse> => {
+  try {
+    const response = await apiClient.get("/rooms/available", { params });
+    return response.data.data ?? response.data;
+  } catch (error) {
+    if (isNetworkUnavailable(error)) {
+      return getFallbackRooms({
+        page: params.page,
+        limit: params.limit,
+        status: "available",
+      });
+    }
+    throw error;
+  }
+};
+
 export const getRoomById = async (id: string): Promise<Room> => {
   try {
     const response = await apiClient.get(`/rooms/${id}`);
@@ -114,6 +138,30 @@ export const getRoomById = async (id: string): Promise<Room> => {
     const fallbackRoom = fallbackRooms.find((room) => room.id === id);
     if (isNetworkUnavailable(error) && fallbackRoom) {
       return fallbackRoom;
+    }
+    throw error;
+  }
+};
+
+export const checkRoomAvailability = async (
+  id: string,
+  params: { check_in_date: string; check_out_date: string },
+): Promise<RoomAvailabilityResponse> => {
+  try {
+    const response = await apiClient.get(`/rooms/${id}/availability`, {
+      params,
+    });
+    return response.data.data ?? response.data;
+  } catch (error) {
+    if (isNetworkUnavailable(error)) {
+      const fallbackRoom = fallbackRooms.find((room) => room.id === id);
+      return {
+        room_id: id,
+        room_number: fallbackRoom?.room_number ?? "",
+        available: fallbackRoom?.status === "available",
+        reason: fallbackRoom?.status === "available" ? null : "ROOM_STATUS_UNAVAILABLE",
+        conflicting_booking: null,
+      };
     }
     throw error;
   }

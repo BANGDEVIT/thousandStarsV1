@@ -1,8 +1,8 @@
 import { CalendarDays, Search, UsersRound } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import heroFallback from "@/assets/hero.png";
+import heroImage from "@/assets/signin.png";
 import type { Room } from "@/types/room.type";
 
 interface HotelSearchHeroSectionProps {
@@ -38,7 +38,7 @@ function openNativeDatePicker(input: HTMLInputElement) {
   try {
     input.showPicker?.();
   } catch {
-    // Some browsers only allow showPicker during direct user activation.
+    // Browser may block showPicker when it is not a direct user action.
   }
 }
 
@@ -48,11 +48,7 @@ export function HotelSearchHeroSection({ rooms }: HotelSearchHeroSectionProps) {
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(guestOptions[1]);
   const [roomCount, setRoomCount] = useState("1");
-
-  const heroImage = useMemo(() => {
-    const roomWithImage = rooms.find((room) => room.images?.[0]);
-    return roomWithImage?.images?.[0] ?? heroFallback;
-  }, [rooms]);
+  const availableRoomCount = rooms.length;
 
   const handleExploreRooms = () => {
     if (!checkIn || !checkOut) {
@@ -66,45 +62,52 @@ export function HotelSearchHeroSection({ rooms }: HotelSearchHeroSectionProps) {
     }
 
     const params = new URLSearchParams();
-
-    if (checkIn) params.set("checkIn", checkIn);
-    if (checkOut) params.set("checkOut", checkOut);
-    if (guests) params.set("guests", guests);
-    if (roomCount) params.set("rooms", roomCount);
-
-    const query = params.toString();
-    navigate(query ? `/rooms?${query}` : "/rooms");
+    params.set("checkIn", checkIn);
+    params.set("checkOut", checkOut);
+    params.set("guests", guests);
+    params.set("rooms", roomCount);
+    params.set("status", "available");
+    navigate(`/rooms?${params.toString()}`);
   };
 
   return (
     <section className="relative bg-white">
-      <div className="relative min-h-[470px] overflow-hidden md:min-h-[540px]">
+      <div className="relative min-h-[560px] overflow-hidden md:min-h-[620px]">
         <img
           src={heroImage}
-          alt="Thousand Stars Hotel"
-          className="absolute inset-0 h-full w-full object-cover"
+          alt="Khu nghỉ dưỡng Thousand Stars bên hồ bơi"
+          className="absolute inset-0 h-full w-full object-cover object-[center_62%]"
         />
-        <div className="absolute inset-0 bg-[#0D2535]/45" />
-        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#0D2535]/50 to-transparent" />
+        <div className="absolute inset-0 bg-[#0D2535]/35" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0D2535]/35 via-[#0D2535]/15 to-[#0D2535]/55" />
+        <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/45 to-transparent" />
 
-        <div className="relative z-10 mx-auto flex min-h-[470px] max-w-6xl flex-col items-center justify-center px-6 pb-20 pt-16 text-center md:min-h-[540px]">
+        <div className="relative z-10 mx-auto flex min-h-[560px] max-w-7xl flex-col items-center justify-center px-5 pb-28 pt-16 text-center md:min-h-[620px] md:px-8">
           <p className="mb-4 text-xs font-bold uppercase tracking-[0.35em] text-[#E5DAC2]">
             Thousand Stars Hotel
           </p>
-          <h1 className="max-w-4xl font-['Lora'] text-4xl font-bold leading-tight text-white md:text-6xl">
+          <h1
+            className="max-w-4xl font-['Lora'] text-4xl font-bold leading-tight text-white md:text-6xl"
+            style={{ textShadow: "0 3px 24px rgba(0,0,0,0.35)" }}
+          >
             Thư giãn. Kết nối.
             <br />
             Tìm nơi nghỉ dưỡng của bạn.
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/90 md:text-lg">
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg">
             Trải nghiệm không gian lưu trú sang trọng, dịch vụ tận tâm và những
             căn phòng được chọn lọc từ hệ thống Thousand Stars.
           </p>
+          {availableRoomCount > 0 && (
+            <p className="mt-4 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur">
+              {availableRoomCount} phòng đang sẵn sàng phục vụ
+            </p>
+          )}
         </div>
       </div>
 
-      <div className="relative z-20 mx-auto -mt-14 max-w-6xl px-6">
-        <div className="grid gap-3 rounded-lg border border-black/10 bg-white p-4 text-left shadow-2xl md:grid-cols-[1fr_1fr_1.25fr_0.7fr_auto] md:items-end">
+      <div className="relative z-20 mx-auto -mt-20 max-w-6xl px-5 md:px-8">
+        <div className="grid gap-4 rounded-2xl border border-black/10 bg-white p-5 text-left shadow-2xl md:grid-cols-[1fr_1fr_1.25fr_0.7fr_auto] md:items-end">
           <label className="block">
             <span className="mb-2 block text-xs font-bold text-[#0D2535]">
               Nhận phòng
@@ -118,11 +121,9 @@ export function HotelSearchHeroSection({ rooms }: HotelSearchHeroSectionProps) {
                 onChange={(event) => {
                   const value = event.target.value;
                   setCheckIn(value);
-                  if (checkOut && checkOut <= value) {
-                    setCheckOut("");
-                  }
+                  if (checkOut && checkOut <= value) setCheckOut("");
                 }}
-                className="h-11 w-full rounded-md border border-gray-200 px-3 pr-10 text-sm text-[#0D2535] outline-none transition focus:border-[#B8852D]"
+                className="h-12 w-full rounded-lg border border-gray-200 px-3 pr-10 text-sm text-[#0D2535] outline-none transition focus:border-[#B8852D] focus:ring-2 focus:ring-[#B8852D]/20"
               />
               <CalendarDays className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#335F76]/60" />
             </span>
@@ -140,7 +141,7 @@ export function HotelSearchHeroSection({ rooms }: HotelSearchHeroSectionProps) {
                 disabled={!checkIn}
                 onClick={(event) => openNativeDatePicker(event.currentTarget)}
                 onChange={(event) => setCheckOut(event.target.value)}
-                className="h-11 w-full rounded-md border border-gray-200 px-3 pr-10 text-sm text-[#0D2535] outline-none transition focus:border-[#B8852D] disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400"
+                className="h-12 w-full rounded-lg border border-gray-200 px-3 pr-10 text-sm text-[#0D2535] outline-none transition focus:border-[#B8852D] focus:ring-2 focus:ring-[#B8852D]/20 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400"
               />
               <CalendarDays className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#335F76]/60" />
             </span>
@@ -154,7 +155,7 @@ export function HotelSearchHeroSection({ rooms }: HotelSearchHeroSectionProps) {
               <select
                 value={guests}
                 onChange={(event) => setGuests(event.target.value)}
-                className="h-11 w-full appearance-none rounded-md border border-gray-200 bg-white px-3 pr-10 text-sm text-[#0D2535] outline-none transition focus:border-[#B8852D]"
+                className="h-12 w-full appearance-none rounded-lg border border-gray-200 bg-white px-3 pr-10 text-sm text-[#0D2535] outline-none transition focus:border-[#B8852D] focus:ring-2 focus:ring-[#B8852D]/20"
               >
                 {guestOptions.map((option) => (
                   <option key={option} value={option}>
@@ -173,7 +174,7 @@ export function HotelSearchHeroSection({ rooms }: HotelSearchHeroSectionProps) {
             <select
               value={roomCount}
               onChange={(event) => setRoomCount(event.target.value)}
-              className="h-11 w-full rounded-md border border-gray-200 bg-white px-3 text-sm text-[#0D2535] outline-none transition focus:border-[#B8852D]"
+              className="h-12 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-[#0D2535] outline-none transition focus:border-[#B8852D] focus:ring-2 focus:ring-[#B8852D]/20"
             >
               {[1, 2, 3, 4, 5].map((count) => (
                 <option key={count} value={count}>
@@ -186,7 +187,7 @@ export function HotelSearchHeroSection({ rooms }: HotelSearchHeroSectionProps) {
           <button
             type="button"
             onClick={handleExploreRooms}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#B8852D] px-6 text-sm font-bold text-white shadow-md transition hover:bg-[#9A6D21]"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#B8852D] px-6 text-sm font-bold text-white shadow-md transition hover:bg-[#9A6D21]"
           >
             <Search className="h-4 w-4" />
             Tìm phòng

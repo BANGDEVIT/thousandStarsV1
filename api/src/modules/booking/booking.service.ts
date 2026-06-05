@@ -114,9 +114,12 @@ export class BookingService {
       );
     }
 
-    // Only available rooms can be booked from the customer flow. Once booked,
-    // they are moved out of status=available search results.
-    const unavailableRooms = rooms.filter((r) => r.status !== 'available');
+    // Maintenance/cleaning/inactive rooms cannot be booked. Rooms marked
+    // occupied still need a date-overlap check because future bookings should
+    // not block other non-overlapping date ranges.
+    const unavailableRooms = rooms.filter((r) =>
+      ['maintenance', 'cleaning', 'inactive'].includes(r.status),
+    );
     if (unavailableRooms.length > 0) {
       throw new BadRequestException(
         `Phòng ${unavailableRooms.map((r) => r.room_number).join(', ')} không còn trống`,

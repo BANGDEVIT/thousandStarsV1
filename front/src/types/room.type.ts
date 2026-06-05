@@ -34,6 +34,19 @@ export interface RoomsResponse {
   totalPages: number;
 }
 
+export interface RoomAvailabilityResponse {
+  room_id: string;
+  room_number: string;
+  available: boolean;
+  reason: 'ROOM_STATUS_UNAVAILABLE' | 'DATE_RANGE_CONFLICT' | null;
+  conflicting_booking?: {
+    id: string;
+    check_in_date: string;
+    check_out_date: string;
+    status: string;
+  } | null;
+}
+
 export interface GetRoomsQuery {
   page?: number;
   limit?: number;

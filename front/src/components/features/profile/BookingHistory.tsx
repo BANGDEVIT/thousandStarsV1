@@ -79,14 +79,14 @@ export function BookingHistory() {
   }, [page, status, fetchBookings]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 border-b border-slate-100 pb-4 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 md:flex-row md:items-center md:justify-between">
         <div className="text-left">
           <h2 className="font-['Lora'] text-xl font-bold text-[#335F76]">
             Lịch sử đặt phòng
           </h2>
-          <p className="text-sm text-slate-400">
-            Chỉ hiển thị các booking của tài khoản đang đăng nhập
+          <p className="mt-1 text-sm text-slate-400">
+            Chỉ hiển thị các booking của tài khoản đang đăng nhập.
           </p>
         </div>
 
@@ -96,7 +96,7 @@ export function BookingHistory() {
             setStatus(event.target.value as BookingStatus);
             setPage(1);
           }}
-          className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 outline-none"
+          className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none transition focus:border-[#335F76]"
         >
           <option value="">Tất cả</option>
           <option value="pending">Chờ xác nhận</option>
@@ -108,15 +108,15 @@ export function BookingHistory() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-sm text-slate-400">
+        <div className="rounded-2xl border border-dashed border-slate-200 py-12 text-center text-sm text-slate-400">
           Đang tải lịch sử đặt phòng...
         </div>
       ) : bookings.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-200 py-12 text-center text-sm text-slate-400">
+        <div className="rounded-2xl border border-dashed border-slate-200 py-12 text-center text-sm text-slate-400">
           Chưa có lịch sử đặt phòng.
         </div>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="grid gap-4">
           {bookings.map((booking) => {
             const statusInfo = STATUS_LABEL[booking.status] ?? {
               label: booking.status,
@@ -127,20 +127,20 @@ export function BookingHistory() {
             return (
               <article
                 key={booking.id}
-                className="rounded-xl border border-slate-100 p-4 text-left transition-colors hover:border-[#335F76]/30"
+                className="rounded-2xl border border-slate-100 bg-white p-4 text-left shadow-sm transition hover:border-[#335F76]/30 hover:shadow-md sm:p-5"
               >
-                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5 rounded-lg bg-[#335F76]/10 p-2 text-[#335F76]">
-                      <BedDouble className="size-4" />
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="mt-0.5 rounded-xl bg-[#335F76]/10 p-2.5 text-[#335F76]">
+                      <BedDouble className="size-5" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-800">
+                    <div className="min-w-0">
+                      <h3 className="break-words font-semibold text-slate-800">
                         {booking.rooms
                           .map((room) => `Phòng ${room.room_number}`)
                           .join(", ")}
                       </h3>
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="mt-1 break-words text-sm text-slate-500">
                         {booking.rooms
                           .map((room) => room.room_type_name)
                           .join(", ")}
@@ -157,30 +157,30 @@ export function BookingHistory() {
 
                 <div className="mt-4 grid gap-3 text-sm text-slate-500 md:grid-cols-2">
                   <div className="flex items-center gap-2">
-                    <CalendarDays className="size-4 text-[#335F76]" />
+                    <CalendarDays className="size-4 shrink-0 text-[#335F76]" />
                     <span>
                       {formatDate(booking.check_in_date)} -{" "}
                       {formatDate(booking.check_out_date)} ({booking.nights} đêm)
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Clock className="size-4 text-[#335F76]" />
+                    <Clock className="size-4 shrink-0 text-[#335F76]" />
                     <span>Đặt lúc {formatDateTime(booking.created_at)}</span>
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between border-t border-slate-50 pt-4">
+                <div className="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
                   <span className="flex items-center gap-2 text-sm text-slate-400">
                     <ReceiptText className="size-4" />
                     Tổng tiền
                   </span>
-                  <div className="flex flex-wrap items-center justify-end gap-3">
+                  <div className="flex flex-wrap items-center gap-3 sm:justify-end">
                     {canCancelBooking(booking) && (
                       <button
                         type="button"
                         disabled={cancellingId === booking.id}
                         onClick={() => handleCancelBooking(booking.id)}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-10 items-center gap-1.5 rounded-xl border border-red-200 px-3 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <XCircle className="size-4" />
                         {cancellingId === booking.id ? "Đang hủy..." : "Hủy phòng"}
@@ -203,7 +203,7 @@ export function BookingHistory() {
             type="button"
             onClick={() => setPage((current) => Math.max(1, current - 1))}
             disabled={page === 1}
-            className="rounded-lg border border-slate-200 p-2 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-xl border border-slate-200 p-2 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <ChevronLeft className="size-4" />
           </button>
@@ -216,7 +216,7 @@ export function BookingHistory() {
               setPage((current) => Math.min(totalPages, current + 1))
             }
             disabled={page === totalPages}
-            className="rounded-lg border border-slate-200 p-2 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-xl border border-slate-200 p-2 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <ChevronRight className="size-4" />
           </button>

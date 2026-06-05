@@ -125,7 +125,7 @@
 #root {
   max-width: 100%;
   margin: 0 auto;
-  text-align: center;
+  text-align: initial;
   border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
@@ -135,6 +135,14 @@
 
 body {
   margin: 0;
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
 }
 
 h1,

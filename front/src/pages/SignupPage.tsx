@@ -1,67 +1,54 @@
 import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router";
 import signinImg from "@/assets/signin.png";
 import { RegisterForm } from "@/components/features/login-comp/register-form";
 
 const SignupPage = () => {
   return (
-    <div className="grid min-h-svh lg:grid-cols-[60%_40%]">
-      <div className="relative hidden bg-muted lg:block">
+    <main className="grid min-h-svh overflow-hidden bg-[#f5efe3] lg:grid-cols-[minmax(0,1.15fr)_minmax(420px,0.85fr)]">
+      <section className="relative hidden min-h-svh lg:block">
         <img
           src={signinImg}
-          alt="Signup"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          alt="Không gian khách sạn Thousand Stars"
+          className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute top-[25%] left-10 flex flex-col gap-6 text-white">
-          {/* Brand name */}
+        <div className="absolute inset-0 bg-[#0d2430]/45" />
+        <div className="relative z-10 flex h-full max-w-3xl flex-col justify-center px-12 text-white xl:px-16">
           <div className="flex items-baseline gap-3">
-            <span
-              className="text-4xl tracking-[0.15em] uppercase"
-              style={{ fontFamily: "'Lora', 'Georgia', serif", fontWeight: 400 }}
-            >
-              Thousand-Star
+            <span className="font-['Lora'] text-4xl uppercase tracking-[0.12em]">
+              Thousand Stars
             </span>
-            <span
-              className="text-xs tracking-[0.3em] uppercase opacity-75"
-              style={{ fontFamily: "sans-serif", fontWeight: 400 }}
-            >
+            <span className="text-xs uppercase tracking-[0.28em] text-white/75">
               Hotels
             </span>
           </div>
+          <div className="mt-8 max-w-xl font-['Lora'] text-4xl leading-tight">
+            <p>Một nơi nghỉ dưỡng,</p>
+            <p className="italic text-[#d2a65a]">vạn lần ấn tượng.</p>
+          </div>
+          <p className="mt-6 max-w-lg text-sm leading-7 text-white/80">
+            Tạo tài khoản để đặt phòng nhanh hơn và theo dõi các ưu đãi từ Thousand Stars.
+          </p>
+        </div>
+      </section>
 
-          {/* Tagline */}
-          <div
-            className="flex flex-col gap-1 leading-snug items-start"
-            style={{ fontFamily: "'Lora', 'Georgia', serif" }}
-          >
-            <span className="text-3xl font-normal">Một nơi nghỉ dưỡng,</span>
-            <span
-              className="text-3xl italic"
-              style={{ color: "#D4A85A" }}
-            >
-              vạn lần ấn tượng.
-            </span>
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-col gap-4 p-6 md:p-10 bg-[#E5DAC2]">
-        <div className="flex justify-center gap-2 md:justify-start">
-          <div className="w-full flex justify-start gap-2">
-            <a href="#" className="flex items-center gap-2 font-medium self-start">
-              <div className="flex size-6 items-center justify-center rounded-md bg-[#E5DAC2] !text-[#52483C] text-primary-foreground">
-                <ArrowLeft className="size-4" />
-              </div>
-              <span className="font-['Lora'] text-[#52483C]">Quay về trang chủ</span>
-            </a>
-          </div>
-        </div>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-md">
+      <section className="flex min-h-svh flex-col px-5 py-6 sm:px-8 lg:px-10">
+        <Link
+          to="/homepage"
+          className="inline-flex w-fit items-center gap-2 rounded-full border border-[#52483C]/15 bg-white/70 px-4 py-2 text-sm font-semibold text-[#52483C] shadow-sm transition hover:bg-white"
+        >
+          <ArrowLeft className="size-4" />
+          Quay về trang chủ
+        </Link>
+
+        <div className="flex flex-1 items-center justify-center py-10">
+          <div className="w-full max-w-lg rounded-3xl border border-white/70 bg-white/85 p-6 shadow-2xl shadow-[#52483C]/10 backdrop-blur sm:p-8">
             <RegisterForm />
           </div>
         </div>
-      </div>
-    </div>
-  )
+      </section>
+    </main>
+  );
 };
 
 export default SignupPage;

@@ -34,6 +34,7 @@ import { UpdateRoomStatusDto } from './dto/update-room-status.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Public } from '../../common/decorators/public.decorator';
 import { QueryAvailableRoomDto } from './dto/query-available-room.dto';
+import { QueryRoomAvailabilityDto } from './dto/query-room-availability.dto';
 
 @Controller('rooms')
 @ApiTags('rooms')
@@ -53,6 +54,29 @@ export class RoomController {
   @ApiResponse({ status: 400, description: 'Invalid date range' })
   async findAvailable(@Query() query: QueryAvailableRoomDto) {
     return this.roomService.findAvailable(query);
+  }
+
+  @Get(':id/availability')
+  @HttpCode(200)
+  @Public()
+  @ApiOperation({
+    summary: 'Check whether a room is available for a date range',
+    description:
+      'Public endpoint used by room detail page before creating a booking.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'UUID room',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiResponse({ status: 200, description: 'Room availability result' })
+  @ApiResponse({ status: 400, description: 'Invalid date range' })
+  @ApiResponse({ status: 404, description: 'Room not found' })
+  async checkAvailability(
+    @Param('id') id: string,
+    @Query() query: QueryRoomAvailabilityDto,
+  ) {
+    return this.roomService.checkAvailability(id, query);
   }
 
   @Post()

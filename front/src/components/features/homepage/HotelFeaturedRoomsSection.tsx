@@ -45,8 +45,8 @@ function formatPrice(value: number) {
 function RoomFact({ children }: { children: ReactNode }) {
   return (
     <li className="flex items-center gap-2 text-sm font-medium text-[#0D2535]">
-      <Check className="h-3.5 w-3.5 text-[#B8852D]" />
-      <span>{children}</span>
+      <Check className="h-3.5 w-3.5 shrink-0 text-[#B8852D]" />
+      <span className="truncate">{children}</span>
     </li>
   );
 }
@@ -67,11 +67,11 @@ function FeaturedRoomCard({
     bedTypeLabel[roomType.bed_type] ?? roomType.bed_type ?? "Giường cao cấp";
 
   return (
-    <article className="overflow-hidden rounded-lg border border-gray-200 bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white text-left shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
       <button
         type="button"
         onClick={onClick}
-        className="group block h-52 w-full overflow-hidden"
+        className="block h-56 w-full overflow-hidden"
         style={
           hasImage
             ? undefined
@@ -91,7 +91,7 @@ function FeaturedRoomCard({
         )}
       </button>
 
-      <div className="p-5">
+      <div className="flex flex-1 flex-col p-5">
         <h3 className="font-['Lora'] text-xl font-bold leading-snug text-[#0D2535]">
           {roomType.name}
         </h3>
@@ -101,7 +101,7 @@ function FeaturedRoomCard({
           <span>Thousand Stars · Tầng {room.floor}</span>
         </div>
 
-        <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
+        <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <RoomFact>{bedLabel}</RoomFact>
           <RoomFact>{roomType.capacity} khách</RoomFact>
           <RoomFact>
@@ -118,7 +118,7 @@ function FeaturedRoomCard({
           </RoomFact>
         </ul>
 
-        <div className="mt-5 flex items-end justify-between gap-4">
+        <div className="mt-auto flex items-end justify-between gap-4 border-t border-[#335F76]/10 pt-5">
           <div>
             <div className="text-xs font-semibold uppercase tracking-wide text-[#335F76]/55">
               Giá từ
@@ -130,7 +130,7 @@ function FeaturedRoomCard({
           <button
             type="button"
             onClick={onClick}
-            className="rounded-md bg-[#B8852D] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#9A6D21]"
+            className="rounded-full bg-[#B8852D] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#9A6D21]"
           >
             Xem chi tiết
           </button>
@@ -146,14 +146,11 @@ export function HotelFeaturedRoomsSection({
 }: HotelFeaturedRoomsSectionProps) {
   const navigate = useNavigate();
   const featuredRooms = getFeaturedRooms(rooms);
-  const goToDetail = (room: Room) => {
-    navigate(`/rooms/${room.id}`);
-  };
 
   return (
-    <section className="bg-white px-6 pb-20 pt-24">
+    <section className="bg-white px-5 pb-24 pt-28 md:px-8">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-10 text-center">
+        <div className="mb-12 text-center">
           <h2 className="font-['Lora'] text-3xl font-bold text-[#0D2535] md:text-4xl">
             Phòng nổi bật
           </h2>
@@ -168,34 +165,29 @@ export function HotelFeaturedRoomsSection({
             {[...Array(3)].map((_, index) => (
               <div
                 key={index}
-                className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm"
+                className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
               >
-                <div className="h-52 animate-pulse bg-gray-100" />
+                <div className="h-56 animate-pulse bg-gray-100" />
                 <div className="space-y-4 p-5">
                   <div className="h-5 w-3/4 animate-pulse rounded bg-gray-100" />
                   <div className="h-4 w-1/2 animate-pulse rounded bg-gray-100" />
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="h-4 animate-pulse rounded bg-gray-100" />
-                    <div className="h-4 animate-pulse rounded bg-gray-100" />
-                    <div className="h-4 animate-pulse rounded bg-gray-100" />
-                    <div className="h-4 animate-pulse rounded bg-gray-100" />
-                  </div>
+                  <div className="h-16 animate-pulse rounded bg-gray-100" />
                 </div>
               </div>
             ))}
           </div>
         ) : featuredRooms.length === 0 ? (
-          <div className="flex h-48 items-center justify-center rounded-lg border border-dashed border-[#335F76]/25 bg-[#E8F5F5] text-[#335F76]/70">
+          <div className="flex h-48 items-center justify-center rounded-2xl border border-dashed border-[#335F76]/25 bg-[#E8F5F5] text-[#335F76]/70">
             Hiện chưa có phòng khả dụng.
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid items-stretch gap-6 md:grid-cols-3">
             {featuredRooms.map((room, index) => (
               <FeaturedRoomCard
                 key={room.id}
                 room={room}
                 index={index}
-                onClick={() => goToDetail(room)}
+                onClick={() => navigate(`/rooms/${room.id}`)}
               />
             ))}
           </div>
