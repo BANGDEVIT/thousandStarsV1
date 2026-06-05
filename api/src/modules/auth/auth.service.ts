@@ -193,7 +193,7 @@ export class AuthService {
   }
 
   // RefreshToken
-  async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
+  async refreshToken(refreshToken: string): Promise<{ accessToken: string; roles: string[] }> {
     // 1. Verify refresh token
     let payload: { sub: string; roles: string[] };
     try {
@@ -245,7 +245,7 @@ export class AuthService {
       },
     );
 
-    return { accessToken: newAccessToken };
+    return { accessToken: newAccessToken, roles };
   }
 
   // Logout

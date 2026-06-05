@@ -1,24 +1,21 @@
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/auth.store";
 import { authService } from "@/services/auth.service";
-import { toast } from "sonner";
 
 export const useInitAuth = () => {
-  const { setAccessToken,setInitialized  } = useAuthStore();
+  const { setAccessToken, setInitialized } = useAuthStore();
 
   useEffect(() => {
     const init = async () => {
       try {
-        const newToken = await authService.refresh();
-        setAccessToken(newToken);
+        const { accessToken, roles } = await authService.refresh();
+        setAccessToken(accessToken, roles); // roles từ JWT → AdminRoute hoạt động đúng sau reload
       } catch {
-        toast.error("Chưa đăng nhập hoặc phiên đã hết hạn");
-      }
-      finally {
-        setInitialized(); // luôn đánh dấu đã init xong
+        // Silent — chưa đăng nhập là bình thường
+      } finally {
+        setInitialized();
       }
     };
-
     init();
   }, []);
 };

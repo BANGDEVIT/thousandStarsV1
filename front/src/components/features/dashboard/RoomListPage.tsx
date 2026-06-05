@@ -19,7 +19,7 @@ export function RoomListPage() {
   const { rooms, loading, fetchRooms, totalPages, page } = useRoomStore();
 
   useEffect(() => {
-    
+    fetchRooms()
   }, [fetchRooms]);
 
   const columns = [

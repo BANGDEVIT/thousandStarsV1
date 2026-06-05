@@ -107,9 +107,9 @@ export class AuthController {
       throw new UnauthorizedException('Refresh token không tồn tại');
     }
 
-    const { accessToken } = await this.authService.refreshToken(refreshToken);
+    const { accessToken, roles } = await this.authService.refreshToken(refreshToken);
 
-    return { accessToken };
+    return { accessToken, roles };
   }
 
   @Post('logout')

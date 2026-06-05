@@ -47,7 +47,7 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        // useAuthStore.getState().clearState();
+        useAuthStore.getState().signOut();
         return Promise.reject(refreshError);
       }
     }
