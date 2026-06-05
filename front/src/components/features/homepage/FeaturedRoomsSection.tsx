@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { useRoomStore } from "@/stores/room.store";
 import { useNavigate } from "react-router";
+import { useHomepageStore } from "@/stores/homepage.store";
+import type { Room } from "@/types/room.type";
 
 const BED_TYPE_LABEL: Record<string, string> = {
   single: "1 giường đơn",
@@ -10,8 +11,6 @@ const BED_TYPE_LABEL: Record<string, string> = {
   queen: "1 giường Queen",
 };
 
-const STATUS_AVAILABLE = "available";
-
 const CARD_GRADIENTS = [
   "from-[#1a3a50] to-[#0D2535]",
   "from-[#2d4a3e] to-[#162820]",
@@ -19,18 +18,17 @@ const CARD_GRADIENTS = [
 ];
 
 export function FeaturedRoomsSection() {
-  const { rooms, loading, fetchRooms } = useRoomStore();
   const navigate = useNavigate();
+  const { featuredRooms, loading, fetchFeaturedRooms } = useHomepageStore();
 
   useEffect(() => {
-    // Lấy phòng available, đủ để hiển thị showcase — public endpoint, không cần auth
-    fetchRooms({ status: STATUS_AVAILABLE, limit: 50, page: 1 });
-  }, [fetchRooms]);
+    fetchFeaturedRooms();
+  }, [fetchFeaturedRooms]);
 
-  // Group phòng theo loại, lấy tối đa 3 loại khác nhau, mỗi loại lấy 1 đại diện
+  // Group theo room_type, lấy tối đa 3 loại, mỗi loại 1 đại diện
   const grouped = (() => {
-    const map = new Map<string, (typeof rooms)[0]>();
-    for (const room of rooms) {
+    const map = new Map<string, Room>();
+    for (const room of featuredRooms) {
       if (room.room_type && !map.has(room.room_type.id)) {
         map.set(room.room_type.id, room);
       }
@@ -39,13 +37,14 @@ export function FeaturedRoomsSection() {
     return Array.from(map.values());
   })();
 
-  // Đếm số phòng available theo từng loại
+  // Đếm số phòng trống theo loại
   const countByType = (typeId: string) =>
-    rooms.filter((r) => r.room_type?.id === typeId).length;
+    featuredRooms.filter((r) => r.room_type?.id === typeId).length;
 
   return (
     <section className="bg-[#F5F0E8] py-24 px-6">
       <div className="max-w-6xl mx-auto">
+
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
@@ -81,14 +80,14 @@ export function FeaturedRoomsSection() {
           <div className="grid md:grid-cols-3 gap-6">
             {grouped.map((room, i) => {
               const rt = room.room_type;
-              const availableCount = countByType(rt.id);
+              const available = countByType(rt.id);
               return (
                 <div
                   key={room.id}
                   className={`relative rounded-2xl overflow-hidden bg-gradient-to-br ${CARD_GRADIENTS[i % CARD_GRADIENTS.length]} group cursor-pointer`}
                   onClick={() => navigate("/rooms")}
                 >
-                  {/* Ảnh phòng nếu có */}
+                  {/* Ảnh thật nếu có */}
                   {room.images && room.images.length > 0 ? (
                     <div className="relative h-44 overflow-hidden">
                       <img
@@ -99,23 +98,21 @@ export function FeaturedRoomsSection() {
                       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50" />
                     </div>
                   ) : (
-                    // Placeholder khi không có ảnh
-                    <div className="h-44 flex items-center justify-center opacity-20">
-                      <span className="text-white text-6xl">🏨</span>
+                    <div className="h-44 flex items-center justify-center opacity-10">
+                      <span className="text-white text-7xl">🏨</span>
                     </div>
                   )}
 
-                  {/* Top decorative line */}
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
                   <div className="p-7 flex flex-col gap-4">
-                    {/* Badges */}
+                    {/* Capacity + bed type + available count */}
                     <div className="flex items-center justify-between">
                       <span className="bg-white/10 text-white/80 text-xs px-3 py-1.5 rounded-full border border-white/10">
                         {rt.capacity} khách · {BED_TYPE_LABEL[rt.bed_type] ?? rt.bed_type}
                       </span>
                       <span className="text-emerald-400 text-xs font-semibold">
-                        {availableCount} phòng trống
+                        {available} phòng trống
                       </span>
                     </div>
 
@@ -128,17 +125,14 @@ export function FeaturedRoomsSection() {
                     {Array.isArray(rt.amenities) && rt.amenities.length > 0 && (
                       <div className="flex flex-wrap gap-1.5">
                         {rt.amenities.slice(0, 4).map((a: string, j: number) => (
-                          <span
-                            key={j}
-                            className="text-white/50 text-xs border border-white/10 px-2.5 py-1 rounded-full"
-                          >
+                          <span key={j} className="text-white/50 text-xs border border-white/10 px-2.5 py-1 rounded-full">
                             {a}
                           </span>
                         ))}
                       </div>
                     )}
 
-                    {/* Price + arrow */}
+                    {/* Giá + arrow */}
                     <div className="flex items-end justify-between pt-4 border-t border-white/10">
                       <div>
                         <div className="text-white/50 text-xs">Giá từ</div>
@@ -148,9 +142,7 @@ export function FeaturedRoomsSection() {
                         <div className="text-white/40 text-xs">/ đêm</div>
                       </div>
                       <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-[#E5DAC2] group-hover:border-[#E5DAC2] transition-all">
-                        <span className="text-white group-hover:text-[#0D2535] text-sm font-bold transition-colors">
-                          →
-                        </span>
+                        <span className="text-white group-hover:text-[#0D2535] text-sm font-bold transition-colors">→</span>
                       </div>
                     </div>
                   </div>
