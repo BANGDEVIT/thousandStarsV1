@@ -268,7 +268,7 @@ export class CustomersService {
       throw new NotFoundException('Customer not found');
     }
 
-    return this.transformCustomer(customer);
+    return customer;
   }
 
   async updateProfile(

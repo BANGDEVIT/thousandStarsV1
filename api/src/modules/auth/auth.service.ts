@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { MailService } from '../../common/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private mailService: MailService,
   ) {}
 
   // register
@@ -112,6 +114,14 @@ export class AuthService {
 
         return customer;
       });
+
+      this.mailService
+        .sendWelcome(email, {
+          customerName: `${lastName} +${firstName} `,
+          email,
+          loginUrl: `${process.env.FRONTEND_URL}/login`,
+        })
+        .catch(() => {});
 
       return {
         user: result,

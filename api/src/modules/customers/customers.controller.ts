@@ -69,9 +69,7 @@ export class CustomersController {
     status: HttpStatus.NOT_FOUND,
     description: 'Không tìm thấy khách hàng',
   })
-  async getProfile(
-    @GetAccount('sub') accountId: string,
-  ): Promise<CustomerResponseDto> {
+  async getProfile(@GetAccount('sub') accountId: string) {
     return this.customerService.getProfile(accountId);
   }
 

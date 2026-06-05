@@ -8,9 +8,12 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -29,10 +32,11 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { BookingServiceResponseDto } from '../services/dto/booking-service-response.dto';
 import { AddBookingServiceDto } from '../services/dto/add-booking-service.dto';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('bookings')
 @ApiBearerAuth('JWT-auth')
-@Controller('booking')
+@Controller('bookings')
 export class BookingController {
   constructor(
     private readonly bookingService: BookingService,
@@ -184,6 +188,16 @@ export class BookingController {
   @Post(':id/check-in')
   @HttpCode(200)
   @Roles('staff', 'manager', 'admin')
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'front_image', maxCount: 1 },
+        { name: 'back_image', maxCount: 1 },
+      ],
+      { limits: { fileSize: 5 * 1024 * 1024 } },
+    ),
+  )
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Check-in khách',
     description:
@@ -210,8 +224,13 @@ export class BookingController {
   async checkIn(
     @Param('id') id: string,
     @GetAccount('sub') accountId: string,
+    @UploadedFiles()
+    files: {
+      front_image?: Express.Multer.File[];
+      back_image?: Express.Multer.File[];
+    },
   ): Promise<BookingResponseDto> {
-    return this.bookingService.checkIn(id, accountId);
+    return this.bookingService.checkIn(id, accountId, files);
   }
 
   // ==================== CHECK-OUT ====================

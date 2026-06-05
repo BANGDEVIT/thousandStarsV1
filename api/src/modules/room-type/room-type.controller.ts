@@ -25,6 +25,7 @@ import {
   RoomTypeResponseDto,
 } from './dto/response-room-type.dto';
 import { QueryRoomTypeDto } from './dto/query-room-type.dto';
+import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('room-types')
 @ApiBearerAuth('JWT-auth')
@@ -56,7 +57,7 @@ export class RoomTypeController {
 
   @Get()
   @HttpCode(200)
-  @Roles('staff', 'manager', 'admin')
+  @Public()
   @ApiOperation({
     summary: 'Xem tất cả loại phòng',
     description: 'Hỗ trợ filter theo tên và phân trang',
@@ -76,7 +77,7 @@ export class RoomTypeController {
 
   @Get(':id')
   @HttpCode(200)
-  @Roles('staff', 'manager', 'admin')
+  @Public()
   @ApiOperation({
     summary: 'Xem chi tiết loại phòng',
     description: 'Xem chi loại phòng. Chỉ có manager mới có quyền',

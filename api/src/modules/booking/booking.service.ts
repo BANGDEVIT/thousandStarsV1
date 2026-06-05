@@ -15,10 +15,16 @@ import {
 } from './dto/booking-response.dto';
 import { Prisma } from '@prisma/client';
 import { QueryBookingDto } from './dto/quey-booking.dto';
+import { S3Service } from '../../common/s3/s3.service';
+import { MailService } from '../../common/mail/mail.service';
 
 @Injectable()
 export class BookingService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private s3Service: S3Service,
+    private mailService: MailService,
+  ) {}
 
   // ==================== CREATE ====================
   async create(
@@ -56,6 +62,17 @@ export class BookingService {
       }
       finalCustomerId = customer_id;
     }
+
+    const customer = await this.prisma.customer.findUnique({
+      where: { id: finalCustomerId },
+    });
+
+    if (!customer?.phone) {
+      throw new BadRequestException(
+        'Khách hàng chưa có số điện thoại. Vui lòng cập nhật trước khi đặt phòng.',
+      );
+    }
+
     // Tìm employee từ accountId
     let employeeId: string | undefined = undefined;
 
@@ -458,13 +475,60 @@ export class BookingService {
       });
     });
 
-    return this.findOne(id);
+    const result = await this.findOne(id);
+
+    const customerEmail =
+      result.customer.email ??
+      (
+        await this.prisma.customer.findUnique({
+          where: { id: result.customer.id },
+          include: { account: true },
+        })
+      )?.account?.email;
+
+    if (customerEmail) {
+      this.mailService
+        .sendBookingConfirmed(customerEmail, {
+          customerName: result.customer.full_name,
+          bookingId: result.id,
+          checkInDate: new Date(result.check_in_date).toLocaleDateString(
+            'vi-VN',
+          ),
+          checkOutDate: new Date(result.check_out_date).toLocaleDateString(
+            'vi-VN',
+          ),
+          nights: result.nights,
+          rooms: result.rooms.map((r) => ({
+            roomNumber: r.room_number,
+            roomType: r.room_type_name,
+            // pricePerNight: r.price_per_night.toLocaleString('vi-VN'),
+            pricePerNight: r.price_per_night,
+          })),
+          // totalAmount: result.total_room_price.toLocaleString('vi-VN'),
+          totalAmount: result.total_room_price,
+          // specialRequests: result.special_requests ?? undefined,
+          hotelName: process.env.HOTEL_NAME,
+          hotelPhone: process.env.HOTEL_PHONE,
+          hotelAddress: process.env.HOTEL_ADDRESS,
+        })
+        .catch(() => {});
+    }
+
+    return result;
   }
 
   // ==================== CHECK-IN ====================
-  async checkIn(id: string, accountId: string): Promise<BookingResponseDto> {
+  async checkIn(
+    id: string,
+    accountId: string,
+    files?: {
+      front_image?: Express.Multer.File[];
+      back_image?: Express.Multer.File[];
+    },
+  ): Promise<BookingResponseDto> {
     const booking = await this.prisma.booking.findUnique({
       where: { id },
+      include: { customer: true },
     });
 
     if (!booking) {
@@ -474,6 +538,45 @@ export class BookingService {
     if (booking.status !== 'confirmed') {
       throw new BadRequestException(
         'Chỉ có thể check-in booking đã được confirm',
+      );
+    }
+
+    let customer = booking.customer;
+    let frontUrl = customer.id_card_img_url;
+    let backUrl = customer.id_card_img_back_url;
+
+    // Xử lý upload ảnh nếu có file và chưa có ảnh
+    if (files?.front_image?.[0] && !frontUrl) {
+      frontUrl = await this.s3Service.uploadFile(
+        files.front_image[0],
+        'customers/id-cards',
+      );
+    }
+    if (files?.back_image?.[0] && !backUrl) {
+      backUrl = await this.s3Service.uploadFile(
+        files.back_image[0],
+        'customers/id-cards',
+      );
+    }
+
+    // Cập nhật customer nếu có ảnh mới
+    if (
+      (frontUrl && frontUrl !== customer.id_card_img_url) ||
+      (backUrl && backUrl !== customer.id_card_img_back_url)
+    ) {
+      customer = await this.prisma.customer.update({
+        where: { id: customer.id },
+        data: {
+          ...(frontUrl && { id_card_img_url: frontUrl }),
+          ...(backUrl && { id_card_img_back_url: backUrl }),
+        },
+      });
+    }
+
+    // Sau khi cập nhật, kiểm tra lại điều kiện bắt buộc
+    if (!customer.id_card_img_url || !customer.id_card_img_back_url) {
+      throw new BadRequestException(
+        'Cần cung cấp ảnh CCCD mặt trước và mặt sau để check-in',
       );
     }
 

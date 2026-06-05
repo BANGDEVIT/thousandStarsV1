@@ -15,6 +15,7 @@ import { S3Module } from './common/s3/s3.module';
 import { ServicesModule } from './modules/services/services.module';
 import { InvoiceModule } from './modules/invoice/invoice.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { MailModule } from './common/mail/mail.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { PaymentModule } from './modules/payment/payment.module';
     ServicesModule,
     InvoiceModule,
     PaymentModule,
+    MailModule,
   ],
   controllers: [],
   providers: [

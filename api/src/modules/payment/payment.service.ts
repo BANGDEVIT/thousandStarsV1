@@ -8,10 +8,14 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { PaymentResponseDto } from './dto/payment-response.dto';
 import { PaymentMethod } from '@prisma/client';
+import { MailService } from '../../common/mail/mail.service';
 
 @Injectable()
 export class PaymentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService,
+  ) {}
 
   // ==================== CREATE ====================
   async create(dto: CreatePaymentDto): Promise<PaymentResponseDto> {
@@ -23,7 +27,7 @@ export class PaymentService {
       include: {
         payments: true,
         booking: {
-          select: { status: true },
+          select: { status: true, customer: true },
         },
       },
     });
@@ -108,6 +112,38 @@ export class PaymentService {
       (sum, p) => sum + Number(p.amount),
       0,
     );
+
+    const customerEmail = invoice.booking.customer.email;
+    if (customerEmail) {
+      this.mailService
+        .sendPaymentReceipt(customerEmail, {
+          customerName: `${invoice.booking.customer.first_name} ${invoice.booking.customer.last_name}`,
+          invoiceId: invoice_id,
+          bookingId: updatedInvoice.booking_id,
+          // amount: amount.toLocaleString('vi-VN'),
+          amount: amount,
+          paymentMethod: payment_method,
+          referenceNumber: reference_number,
+          // paidAt: new Date().toLocaleDateString('vi-VN'),
+          // totalAmount: Number(updatedInvoice.total_amount).toLocaleString(
+          //   'vi-VN',
+          // ),
+          // totalPaid: newTotalPaid.toLocaleString('vi-VN'),
+          // remaining: Math.max(
+          //   0,
+          //   Number(updatedInvoice.final_amount) - newTotalPaid,
+          // ).toLocaleString('vi-VN'),
+          paidAt: new Date().toISOString(),
+          totalAmount: Number(updatedInvoice.total_amount),
+          remaining: Math.max(
+            0,
+            Number(updatedInvoice.final_amount) - newTotalPaid,
+          ),
+          totalPaid: newTotalPaid,
+          status: updatedInvoice.status,
+        })
+        .catch(() => {});
+    }
 
     return {
       id: payment.id,

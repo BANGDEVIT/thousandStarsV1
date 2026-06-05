@@ -32,6 +32,8 @@ import {
 import { QueryRoomDto } from './dto/query-room.dto';
 import { UpdateRoomStatusDto } from './dto/update-room-status.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { Public } from '../../common/decorators/public.decorator';
+import { QueryAvailableRoomDto } from './dto/query-available-room.dto';
 
 @Controller('rooms')
 @ApiTags('rooms')
@@ -39,6 +41,19 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
+  @Get('available')
+  @HttpCode(200)
+  @Public() // ← Không cần đăng nhập — khách browse phòng
+  @ApiOperation({
+    summary: 'Tìm phòng trống theo ngày',
+    description:
+      'Public API — Khách hàng tìm phòng available trong khoảng thời gian',
+  })
+  @ApiResponse({ status: 200, description: 'Danh sách phòng trống' })
+  @ApiResponse({ status: 400, description: 'Ngày không hợp lệ' })
+  async findAvailable(@Query() query: QueryAvailableRoomDto) {
+    return this.roomService.findAvailable(query);
+  }
   @Post()
   @HttpCode(201)
   @Roles('manager', 'admin')
@@ -79,7 +94,7 @@ export class RoomController {
 
   @Get()
   @HttpCode(200)
-  @Roles('staff', 'manager', 'admin')
+  @Public()
   @ApiOperation({
     summary: 'Lấy danh sách phòng',
     description: 'Hỗ trợ filter theo trạng thái, loại phòng, tầng',
@@ -98,7 +113,7 @@ export class RoomController {
 
   @Get(':id')
   @HttpCode(200)
-  @Roles('staff', 'manager', 'admin')
+  @Public()
   @ApiOperation({
     summary: 'Xem chi tiết phòng',
     description: 'Xem thông tin chi tiết của 1 phòng',
