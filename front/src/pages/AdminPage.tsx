@@ -8,7 +8,7 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip"
 import {RoomListPage} from "@/components/features/dashboard/RoomListPage"
 import{RoomTypeListPage} from '@/components/features/dashboard/RoomTypeListPage'
-
+import {EmployeeListPage} from '@/components/features/dashboard/EmployeeListPage'
 export default function Page() {
   return (
     <TooltipProvider>
@@ -28,6 +28,7 @@ export default function Page() {
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
                <RoomListPage />
                <RoomTypeListPage />
+               <EmployeeListPage />
             </div>
           </div>
         </div>
