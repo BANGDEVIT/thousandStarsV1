@@ -1,5 +1,6 @@
 import { BedDouble, MapPin, Users, Wifi } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
+import { useAuthStore } from "@/stores/auth.store";
 import type { Room } from "@/types/room.type";
 
 interface RoomCardProps {
@@ -14,12 +15,68 @@ const bedTypeLabel: Record<string, string> = {
   queen: "Giường Queen",
 };
 
+type StatusView = {
+  label: string;
+  className: string;
+  actionText: string;
+  disabled?: boolean;
+  title?: string;
+};
+
+const statusView: Record<Room["status"], StatusView> = {
+  available: {
+    label: "Còn trống",
+    className: "bg-emerald-50 text-emerald-700",
+    actionText: "Đặt phòng",
+  },
+  occupied: {
+    label: "Đã đặt",
+    className: "bg-red-50 text-red-600",
+    actionText: "Xem lịch",
+  },
+  maintenance: {
+    label: "Bảo trì",
+    className: "bg-amber-100 text-amber-700",
+    actionText: "Đang bảo trì",
+    disabled: true,
+    title: "Phòng hiện đang được bảo trì và tạm thời không thể đặt.",
+  },
+  cleaning: {
+    label: "Đang dọn",
+    className: "bg-sky-50 text-sky-700",
+    actionText: "Không khả dụng",
+    disabled: true,
+    title: "Phòng đang được dọn và tạm thời chưa thể đặt.",
+  },
+  inactive: {
+    label: "Ngưng dùng",
+    className: "bg-slate-100 text-slate-500",
+    actionText: "Không khả dụng",
+    disabled: true,
+    title: "Phòng hiện không khả dụng.",
+  },
+};
+
+function getDisplayStatus(room: Room, isLoggedIn: boolean): StatusView {
+  if (!isLoggedIn && room.status === "occupied") {
+    return {
+      label: "Còn trống",
+      className: "bg-emerald-50 text-emerald-700",
+      actionText: "Đặt phòng",
+      title: "Vào chi tiết để chọn ngày và kiểm tra lịch phòng.",
+    };
+  }
+
+  return statusView[room.status] ?? statusView.inactive;
+}
+
 export default function RoomCard({ room }: RoomCardProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const accessToken = useAuthStore((state) => state.accessToken);
   const roomType = room.room_type;
   const hasImage = room.images?.[0];
-  const statusLabel = room.status === "available" ? "Còn trống" : "Đã đặt";
+  const status = getDisplayStatus(room, Boolean(accessToken));
 
   const goToDetail = () => {
     navigate(`/rooms/${room.id}${location.search}`);
@@ -50,8 +107,10 @@ export default function RoomCard({ room }: RoomCardProps) {
           <h3 className="font-['Lora'] text-xl font-bold leading-snug text-[#0D2535]">
             {roomType.name}
           </h3>
-          <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
-            {statusLabel}
+          <span
+            className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${status.className}`}
+          >
+            {status.label}
           </span>
         </div>
 
@@ -88,10 +147,12 @@ export default function RoomCard({ room }: RoomCardProps) {
           </div>
           <button
             type="button"
-            onClick={goToDetail}
-            className="rounded-full bg-[#0D2535] px-4 py-2 text-sm font-bold text-[#E5DAC2] transition hover:bg-[#335F76]"
+            onClick={status.disabled ? undefined : goToDetail}
+            disabled={status.disabled}
+            title={status.title}
+            className="rounded-full bg-[#0D2535] px-4 py-2 text-sm font-bold text-[#E5DAC2] transition hover:bg-[#335F76] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
           >
-            Đặt phòng
+            {status.actionText}
           </button>
         </div>
       </div>

@@ -258,7 +258,7 @@ export class RoomService {
 
     const skip = (page - 1) * limit;
     const where: Prisma.RoomWhereInput = {
-      status: 'available',
+      status: { notIn: ['inactive', 'maintenance', 'cleaning'] },
       id: { notIn: bookedRoomIds.map((bookingRoom) => bookingRoom.room_id) },
       ...(room_type_id && { room_type_id }),
       ...(capacity && { room_type: { capacity: { gte: capacity } } }),
@@ -312,7 +312,15 @@ export class RoomService {
   }
 
   async checkAvailability(id: string, query: QueryRoomAvailabilityDto) {
-    const { check_in_date, check_out_date } = query;
+    const check_in_date = query.check_in_date ?? query.checkInDate;
+    const check_out_date = query.check_out_date ?? query.checkOutDate;
+
+    if (!check_in_date || !check_out_date) {
+      throw new BadRequestException(
+        'checkInDate/checkOutDate or check_in_date/check_out_date is required',
+      );
+    }
+
     const room = await this.prisma.room.findUnique({
       where: { id },
       select: {
@@ -345,10 +353,12 @@ export class RoomService {
         room_number: room.room_number,
         available: false,
         reason: 'ROOM_STATUS_UNAVAILABLE',
+        conflictBookings: [],
+        message: `Room ${room.room_number} is not bookable now`,
       };
     }
 
-    const overlappingBooking = await this.prisma.bookingRoom.findFirst({
+    const overlappingBookings = await this.prisma.bookingRoom.findMany({
       where: {
         room_id: id,
         booking: {
@@ -367,14 +377,33 @@ export class RoomService {
           },
         },
       },
+      orderBy: {
+        booking: {
+          check_in_date: 'asc',
+        },
+      },
     });
+
+    const conflictBookings = overlappingBookings.map(({ booking }) => ({
+      id: booking.id,
+      check_in_date: booking.check_in_date,
+      check_out_date: booking.check_out_date,
+      status: booking.status,
+    }));
+
+    const firstConflict = conflictBookings[0];
+    const message = firstConflict
+      ? `Phòng đã có người đặt từ ngày ${firstConflict.check_in_date.toLocaleDateString('vi-VN')} đến ngày ${firstConflict.check_out_date.toLocaleDateString('vi-VN')}. Vui lòng chọn ngày khác.`
+      : 'Phòng còn trống trong khoảng thời gian này.';
 
     return {
       room_id: room.id,
       room_number: room.room_number,
-      available: !overlappingBooking,
-      reason: overlappingBooking ? 'DATE_RANGE_CONFLICT' : null,
-      conflicting_booking: overlappingBooking?.booking ?? null,
+      available: conflictBookings.length === 0,
+      reason: conflictBookings.length > 0 ? 'DATE_RANGE_CONFLICT' : null,
+      conflictBookings,
+      conflicting_booking: firstConflict ?? null,
+      message,
     };
   }
 

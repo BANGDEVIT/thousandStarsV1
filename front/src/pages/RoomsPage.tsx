@@ -8,6 +8,15 @@ import { getAvailableRooms, getRooms } from "@/services/room.service";
 import type { Room, RoomsResponse } from "@/types/room.type";
 import RoomCard from "@/components/features/rooms/RoomCard";
 import RoomFilters from "@/components/features/rooms/RoomFilters";
+import roomsHeroImage from "@/assets/signin.png";
+
+const statusOrder: Record<Room["status"], number> = {
+  available: 0,
+  occupied: 1,
+  maintenance: 2,
+  cleaning: 3,
+  inactive: 4,
+};
 
 function toDateInputValue(date: Date) {
   const year = date.getFullYear();
@@ -41,7 +50,7 @@ const RoomsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>(
-    searchParams.get("status") ?? "available",
+    searchParams.get("status") ?? "",
   );
   const [checkIn, setCheckIn] = useState(searchParams.get("checkIn") ?? "");
   const [checkOut, setCheckOut] = useState(searchParams.get("checkOut") ?? "");
@@ -70,7 +79,11 @@ const RoomsPage = () => {
             status: statusFilter || undefined,
           });
 
-      setRooms(response.data);
+      setRooms(
+        [...response.data].sort(
+          (a, b) => statusOrder[a.status] - statusOrder[b.status],
+        ),
+      );
       setTotalPages(response.totalPages);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Không thể tải danh sách phòng");
@@ -83,23 +96,45 @@ const RoomsPage = () => {
     fetchRooms();
   }, [page, statusFilter, checkIn, checkOut]);
 
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
+    setPage(1);
+  };
+
   const handleSearchDates = () => {
-    if (!checkIn || !checkOut) {
-      toast.error("Vui lòng chọn ngày nhận phòng và ngày trả phòng");
+    const hasAnyDate = Boolean(checkIn || checkOut);
+    const hasFullDateRange = Boolean(checkIn && checkOut);
+
+    if (hasAnyDate && !hasFullDateRange) {
+      toast.error("Vui lòng chọn đủ ngày nhận phòng và ngày trả phòng");
       return;
     }
 
-    if (checkOut <= checkIn) {
+    if (hasFullDateRange && checkOut <= checkIn) {
       toast.error("Ngày trả phòng phải sau ngày nhận phòng");
       return;
     }
 
-    const params = new URLSearchParams(searchParams);
-    params.set("checkIn", checkIn);
-    params.set("checkOut", checkOut);
-    params.set("status", statusFilter || "available");
+    const params = new URLSearchParams();
+    if (hasFullDateRange) {
+      params.set("checkIn", checkIn);
+      params.set("checkOut", checkOut);
+      params.set("status", statusFilter || "available");
+    } else if (statusFilter) {
+      params.set("status", statusFilter);
+    }
+
     setPage(1);
-    navigate(`/rooms?${params.toString()}`);
+    const query = params.toString();
+    navigate(query ? `/rooms?${query}` : "/rooms");
+  };
+
+  const clearDateSearch = () => {
+    setCheckIn("");
+    setCheckOut("");
+    setStatusFilter("");
+    setPage(1);
+    navigate("/rooms");
   };
 
   return (
@@ -107,21 +142,38 @@ const RoomsPage = () => {
       <Navbar />
 
       <main className="flex-1">
-        <section className="bg-gradient-to-r from-[#1a3a50] to-[#0D2535] px-5 py-14 text-left md:px-8 md:py-20">
-          <div className="mx-auto max-w-6xl">
-            <h1 className="font-['Lora'] text-4xl font-bold leading-tight text-white md:text-5xl">
-              Khám phá các phòng của chúng tôi
+        <section className="relative overflow-hidden px-5 py-16 text-left md:px-8 md:py-24">
+          <img
+            src={roomsHeroImage}
+            alt="Không gian phòng và hồ bơi Thousand Stars"
+            className="absolute inset-0 h-full w-full object-cover object-[center_62%]"
+          />
+          <div className="absolute inset-0 bg-[#071824]/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#071824]/90 via-[#071824]/65 to-[#071824]/45" />
+
+          <div className="relative z-10 mx-auto max-w-6xl">
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-[#E5DAC2]">
+              Thousand Stars Rooms
+            </p>
+            <h1
+              className="font-['Lora'] text-4xl font-bold leading-tight text-white md:text-5xl"
+              style={{
+                color: "#ffffff",
+                textShadow: "0 4px 24px rgba(0,0,0,0.75)",
+              }}
+            >
+              Phòng của chúng tôi
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg">
-              Lựa chọn từ nhiều loại phòng sang trọng với tiện nghi đầy đủ cho
-              một kỳ nghỉ thoải mái tại Thousand Stars.
+            <p className="mt-4 max-w-2xl text-base font-medium leading-relaxed text-white/90 md:text-lg">
+              Xem toàn bộ phòng hoặc chọn ngày để kiểm tra phòng còn trống theo
+              lịch đặt hiện tại.
             </p>
           </div>
         </section>
 
         <section className="px-5 py-10 md:px-8 md:py-14">
           <div className="mx-auto max-w-6xl">
-            <div className="mb-6 grid gap-4 rounded-2xl border border-[#335F76]/10 bg-white p-5 text-left shadow-sm md:grid-cols-[1fr_1fr_auto] md:items-end">
+            <div className="mb-6 grid gap-4 rounded-2xl border border-[#335F76]/10 bg-white p-5 text-left shadow-sm md:grid-cols-[1fr_1fr_auto_auto] md:items-end">
               <label className="block">
                 <span className="mb-2 block text-xs font-bold uppercase tracking-wide text-[#335F76]">
                   Ngày nhận phòng
@@ -171,11 +223,19 @@ const RoomsPage = () => {
                 <Search className="h-4 w-4" />
                 Tìm phòng
               </button>
+
+              <button
+                type="button"
+                onClick={clearDateSearch}
+                className="h-12 rounded-lg border border-[#335F76]/25 px-5 text-sm font-bold text-[#335F76] transition hover:bg-[#335F76] hover:text-white"
+              >
+                Xem tất cả
+              </button>
             </div>
 
             <RoomFilters
               statusFilter={statusFilter}
-              setStatusFilter={setStatusFilter}
+              setStatusFilter={handleStatusFilterChange}
             />
 
             {loading && (
@@ -202,7 +262,7 @@ const RoomsPage = () => {
                   Không có phòng phù hợp
                 </p>
                 <p className="mt-2 text-[#335F76]/60">
-                  Vui lòng thử lại với tiêu chí khác.
+                  Vui lòng thử lại với tiêu chí khác hoặc bấm “Xem tất cả”.
                 </p>
               </div>
             )}

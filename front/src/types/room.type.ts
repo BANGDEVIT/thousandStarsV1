@@ -2,7 +2,7 @@ export interface Room {
   id: string;
   room_number: string;
   floor: number;
-  status: 'available' | 'occupied' | 'maintenance' | 'cleaning' | 'inactive';
+  status: "available" | "occupied" | "maintenance" | "cleaning" | "inactive";
   room_type: RoomType;
   created_at: string;
   updated_at: string;
@@ -34,17 +34,21 @@ export interface RoomsResponse {
   totalPages: number;
 }
 
+export interface ConflictBooking {
+  id: string;
+  check_in_date: string;
+  check_out_date: string;
+  status: string;
+}
+
 export interface RoomAvailabilityResponse {
   room_id: string;
   room_number: string;
   available: boolean;
-  reason: 'ROOM_STATUS_UNAVAILABLE' | 'DATE_RANGE_CONFLICT' | null;
-  conflicting_booking?: {
-    id: string;
-    check_in_date: string;
-    check_out_date: string;
-    status: string;
-  } | null;
+  reason: "ROOM_STATUS_UNAVAILABLE" | "DATE_RANGE_CONFLICT" | null;
+  conflictBookings: ConflictBooking[];
+  conflicting_booking?: ConflictBooking | null;
+  message: string;
 }
 
 export interface GetRoomsQuery {
@@ -54,7 +58,7 @@ export interface GetRoomsQuery {
   room_type_id?: string;
   floor?: number;
   sortBy?: string;
-  order?: 'asc' | 'desc';
+  order?: "asc" | "desc";
   search?: string;
 }
 
@@ -65,5 +69,5 @@ export interface UpdateRoomDto {
 }
 
 export interface UpdateRoomStatusDto {
-  status: 'available' | 'occupied' | 'maintenance' | 'cleaning' | 'inactive';
+  status: "available" | "occupied" | "maintenance" | "cleaning" | "inactive";
 }

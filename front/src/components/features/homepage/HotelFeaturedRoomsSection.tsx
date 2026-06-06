@@ -150,13 +150,12 @@ export function HotelFeaturedRoomsSection({
   return (
     <section className="bg-white px-5 pb-24 pt-28 md:px-8">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-12 text-center">
+        <div className="mb-12 flex flex-col items-center text-center">
           <h2 className="font-['Lora'] text-3xl font-bold text-[#0D2535] md:text-4xl">
             Phòng nổi bật
           </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-[#335F76]/70">
-            Các phòng đang khả dụng được lấy trực tiếp từ hệ thống Thousand
-            Stars.
+          <p className="mx-auto mt-3 block max-w-2xl text-center text-sm leading-relaxed text-[#335F76]/70">
+            Các phòng đang khả dụng được lấy trực tiếp từ hệ thống Thousand Stars.
           </p>
         </div>
 

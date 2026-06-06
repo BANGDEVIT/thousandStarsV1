@@ -36,7 +36,7 @@ export default function RoomFilters({
 
       <button
         type="button"
-        onClick={() => setStatusFilter("available")}
+        onClick={() => setStatusFilter("")}
         className="h-11 rounded-md border border-[#335F76] px-5 text-sm font-bold text-[#335F76] transition hover:bg-[#335F76] hover:text-white"
       >
         Đặt lại lọc

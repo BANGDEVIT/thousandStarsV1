@@ -1,5 +1,6 @@
 import apiClient from "@/lib/axios";
 import type {
+  ConflictBooking,
   CreateRoomDto,
   GetRoomsQuery,
   Room,
@@ -91,6 +92,23 @@ function getFallbackRooms(params?: GetRoomsQuery): RoomsResponse {
   };
 }
 
+function normalizeAvailabilityResponse(data: RoomAvailabilityResponse): RoomAvailabilityResponse {
+  const conflictBookings =
+    data.conflictBookings ??
+    ((data.conflicting_booking ? [data.conflicting_booking] : []) as ConflictBooking[]);
+
+  return {
+    ...data,
+    conflictBookings,
+    conflicting_booking: data.conflicting_booking ?? conflictBookings[0] ?? null,
+    message:
+      data.message ??
+      (conflictBookings.length > 0
+        ? "Phòng đã có người đặt trong khoảng thời gian này. Vui lòng chọn ngày khác."
+        : "Phòng còn trống trong khoảng thời gian này."),
+  };
+}
+
 export const getRooms = async (
   params?: GetRoomsQuery,
 ): Promise<RoomsResponse> => {
@@ -149,9 +167,12 @@ export const checkRoomAvailability = async (
 ): Promise<RoomAvailabilityResponse> => {
   try {
     const response = await apiClient.get(`/rooms/${id}/availability`, {
-      params,
+      params: {
+        checkInDate: params.check_in_date,
+        checkOutDate: params.check_out_date,
+      },
     });
-    return response.data.data ?? response.data;
+    return normalizeAvailabilityResponse(response.data.data ?? response.data);
   } catch (error) {
     if (isNetworkUnavailable(error)) {
       const fallbackRoom = fallbackRooms.find((room) => room.id === id);
@@ -160,7 +181,12 @@ export const checkRoomAvailability = async (
         room_number: fallbackRoom?.room_number ?? "",
         available: fallbackRoom?.status === "available",
         reason: fallbackRoom?.status === "available" ? null : "ROOM_STATUS_UNAVAILABLE",
+        conflictBookings: [],
         conflicting_booking: null,
+        message:
+          fallbackRoom?.status === "available"
+            ? "Phòng còn trống trong khoảng thời gian này."
+            : "Phòng hiện không thể đặt.",
       };
     }
     throw error;

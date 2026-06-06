@@ -11,7 +11,11 @@ import { FooterSection } from "@/components/features/homepage/FooterSection";
 import { bookingService } from "@/services/booking.service";
 import { checkRoomAvailability, getRoomById } from "@/services/room.service";
 import { useAuthStore } from "@/stores/auth.store";
-import type { Room, RoomAvailabilityResponse } from "@/types/room.type";
+import type {
+  ConflictBooking,
+  Room,
+  RoomAvailabilityResponse,
+} from "@/types/room.type";
 
 const bedTypeLabel: Record<string, string> = {
   single: "Giường đơn",
@@ -38,17 +42,11 @@ function addDays(value: string, days: number) {
   return toDateInputValue(date);
 }
 
-function toDateAtMidnight(value: string) {
-  return new Date(`${value}T00:00:00`);
-}
-
 function getNightCount(checkIn: string, checkOut: string) {
   if (!checkIn || !checkOut) return 0;
-
-  const start = toDateAtMidnight(checkIn);
-  const end = toDateAtMidnight(checkOut);
+  const start = new Date(`${checkIn}T00:00:00`);
+  const end = new Date(`${checkOut}T00:00:00`);
   const diff = end.getTime() - start.getTime();
-
   return diff > 0 ? Math.ceil(diff / (1000 * 60 * 60 * 24)) : 0;
 }
 
@@ -56,9 +54,24 @@ function formatCurrency(value: number) {
   return `${Number(value || 0).toLocaleString("vi-VN")}đ`;
 }
 
-function formatDate(value: string) {
+function formatDate(value?: string) {
   if (!value) return "Chưa chọn";
-  return new Date(`${value}T00:00:00`).toLocaleDateString("vi-VN");
+  return new Date(value.includes("T") ? value : `${value}T00:00:00`).toLocaleDateString(
+    "vi-VN",
+  );
+}
+
+function buildConflictMessage(conflicts: ConflictBooking[]) {
+  if (conflicts.length === 0) return "Phòng còn trống trong khoảng thời gian này.";
+
+  if (conflicts.length === 1) {
+    const conflict = conflicts[0];
+    return `Phòng đã có người đặt từ ngày ${formatDate(
+      conflict.check_in_date,
+    )} đến ngày ${formatDate(conflict.check_out_date)}. Vui lòng chọn ngày khác.`;
+  }
+
+  return `Phòng đã có ${conflicts.length} lịch đặt bị trùng. Vui lòng chọn ngày khác.`;
 }
 
 function openNativeDatePicker(input: HTMLInputElement) {
@@ -100,6 +113,9 @@ export default function RoomDetailPage() {
     () => searchParams.get("checkOut") ?? "",
   );
 
+  const isMaintenance = room?.status === "maintenance";
+  const isDateInputDisabled = isMaintenance;
+
   useEffect(() => {
     const fetchRoom = async () => {
       if (!id) return;
@@ -119,7 +135,13 @@ export default function RoomDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    if (!id || !checkIn || !checkOut || getNightCount(checkIn, checkOut) <= 0) {
+    if (
+      isMaintenance ||
+      !id ||
+      !checkIn ||
+      !checkOut ||
+      getNightCount(checkIn, checkOut) <= 0
+    ) {
       setAvailability(null);
       return;
     }
@@ -136,7 +158,7 @@ export default function RoomDetailPage() {
         if (!cancelled) {
           setAvailability(result);
           if (!result.available) {
-            toast.error("Phòng đã được đặt trong khoảng thời gian này");
+            toast.error(buildConflictMessage(result.conflictBookings));
           }
         }
       } catch {
@@ -154,7 +176,7 @@ export default function RoomDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [id, checkIn, checkOut]);
+  }, [id, checkIn, checkOut, isMaintenance]);
 
   const nights = useMemo(
     () => getNightCount(checkIn, checkOut),
@@ -162,24 +184,30 @@ export default function RoomDetailPage() {
   );
   const pricePerNight = Number(room?.room_type.base_price ?? 0);
   const totalPrice = pricePerNight * nights;
+  const hasValidDateRange = Boolean(checkIn && checkOut && nights > 0);
 
   const roomStatusLabel = (() => {
-    if (availability && !availability.available) {
-      return "Đã đặt trong ngày chọn";
+    if (isMaintenance) return "Bảo trì";
+    if (hasValidDateRange && availability && !availability.available) {
+      return "Đã đặt";
     }
-    if (room?.status === "available") return "Còn trống";
-    if (room?.status === "occupied") return "Đã đặt";
-    if (room?.status === "maintenance") return "Bảo trì";
+    if (hasValidDateRange && availability?.available) {
+      return "Còn trống";
+    }
     if (room?.status === "cleaning") return "Đang dọn";
-    return "Không hoạt động";
+    if (room?.status === "inactive") return "Không khả dụng";
+    return "Còn trống";
   })();
 
-  const roomStatusClass =
-    availability && !availability.available
+  const roomStatusClass = isMaintenance
+    ? "bg-amber-100 text-amber-700"
+    : hasValidDateRange && availability && !availability.available
       ? "bg-red-50 text-red-600"
-      : room?.status === "available"
-        ? "bg-emerald-50 text-emerald-700"
-        : "bg-yellow-50 text-yellow-700";
+      : room?.status === "cleaning"
+        ? "bg-sky-50 text-sky-700"
+        : room?.status === "inactive"
+          ? "bg-slate-100 text-slate-500"
+          : "bg-emerald-50 text-emerald-700";
 
   const getCurrentDetailPath = () => {
     const params = new URLSearchParams(location.search);
@@ -190,6 +218,11 @@ export default function RoomDetailPage() {
   };
 
   const validateDates = () => {
+    if (isMaintenance) {
+      toast.error("Phòng hiện đang được bảo trì và tạm thời không thể đặt.");
+      return false;
+    }
+
     if (!checkIn || !checkOut) {
       toast.error("Vui lòng chọn ngày nhận phòng và ngày trả phòng");
       return false;
@@ -210,7 +243,6 @@ export default function RoomDetailPage() {
 
   const handleConfirmBooking = async () => {
     if (!room || !id) return;
-
     if (!validateDates()) return;
 
     if (!accessToken) {
@@ -229,7 +261,7 @@ export default function RoomDetailPage() {
       setAvailability(latestAvailability);
 
       if (!latestAvailability.available) {
-        toast.error("Phòng đã được đặt trong khoảng thời gian này");
+        toast.error(buildConflictMessage(latestAvailability.conflictBookings));
         return;
       }
 
@@ -245,7 +277,7 @@ export default function RoomDetailPage() {
 
       toast.success("Đặt phòng thành công!");
       setRoom({ ...room, status: "occupied" });
-      navigate("/rooms?status=available", { replace: true });
+      navigate("/rooms", { replace: true });
     } catch (error: unknown) {
       const status = getErrorStatus(error);
 
@@ -255,8 +287,11 @@ export default function RoomDetailPage() {
         return;
       }
 
-      if (status === 409) {
-        toast.error("Phòng đã được đặt trong khoảng thời gian này");
+      if (status === 400 || status === 409) {
+        toast.error(
+          getErrorMessage(error) ??
+            "Phòng hiện không thể đặt. Vui lòng chọn phòng khác.",
+        );
         return;
       }
 
@@ -297,6 +332,15 @@ export default function RoomDetailPage() {
             ) : (
               <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.75fr)]">
                 <article className="overflow-hidden rounded-3xl bg-white text-left shadow-sm">
+                  {isMaintenance && (
+                    <div className="border-b border-amber-200 bg-amber-50 px-6 py-4 text-sm text-amber-800 md:px-8">
+                      <p className="font-bold">Phòng này hiện đang được bảo trì.</p>
+                      <p className="mt-1">
+                        Tạm thời không nhận đặt phòng trong thời gian này.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="aspect-[16/10] max-h-[520px] bg-[#0D2535]">
                     {room.images?.[0] ? (
                       <img
@@ -371,50 +415,49 @@ export default function RoomDetailPage() {
                     Giá thuê
                   </h2>
 
+                  {isMaintenance && (
+                    <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                      Phòng hiện đang được bảo trì và tạm thời không thể đặt.
+                    </div>
+                  )}
+
                   <div className="mt-6 grid gap-4">
                     <label className="block rounded-xl border border-[#335F76]/10 bg-[#F5F0E8] p-4">
                       <span className="mb-2 block text-xs font-bold uppercase tracking-wide text-[#335F76]">
                         Ngày nhận phòng
                       </span>
-                      <span className="relative block">
-                        <input
-                          type="date"
-                          value={checkIn}
-                          min={todayInputValue()}
-                          onClick={(event) =>
-                            openNativeDatePicker(event.currentTarget)
-                          }
-                          onChange={(event) => {
-                            const value = event.target.value;
-                            setCheckIn(value);
-                            if (checkOut && checkOut <= value) setCheckOut("");
-                          }}
-                          className="h-11 w-full rounded-lg border border-[#335F76]/15 bg-white px-3 pr-10 text-sm text-[#0D2535] outline-none transition focus:border-[#B8852D] focus:ring-2 focus:ring-[#B8852D]/20"
-                        />
-                      </span>
+                      <input
+                        type="date"
+                        value={checkIn}
+                        min={todayInputValue()}
+                        disabled={isDateInputDisabled}
+                        onClick={(event) => openNativeDatePicker(event.currentTarget)}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setCheckIn(value);
+                          if (checkOut && checkOut <= value) setCheckOut("");
+                        }}
+                        className="h-11 w-full rounded-lg border border-[#335F76]/15 bg-white px-3 text-sm text-[#0D2535] outline-none transition focus:border-[#B8852D] focus:ring-2 focus:ring-[#B8852D]/20 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400"
+                      />
                     </label>
 
                     <label className="block rounded-xl border border-[#335F76]/10 bg-[#F5F0E8] p-4">
                       <span className="mb-2 block text-xs font-bold uppercase tracking-wide text-[#335F76]">
                         Ngày trả phòng
                       </span>
-                      <span className="relative block">
-                        <input
-                          type="date"
-                          value={checkOut}
-                          min={
-                            checkIn
-                              ? addDays(checkIn, 1)
-                              : addDays(todayInputValue(), 1)
-                          }
-                          disabled={!checkIn}
-                          onClick={(event) =>
-                            openNativeDatePicker(event.currentTarget)
-                          }
-                          onChange={(event) => setCheckOut(event.target.value)}
-                          className="h-11 w-full rounded-lg border border-[#335F76]/15 bg-white px-3 pr-10 text-sm text-[#0D2535] outline-none transition focus:border-[#B8852D] focus:ring-2 focus:ring-[#B8852D]/20 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400"
-                        />
-                      </span>
+                      <input
+                        type="date"
+                        value={checkOut}
+                        min={
+                          checkIn
+                            ? addDays(checkIn, 1)
+                            : addDays(todayInputValue(), 1)
+                        }
+                        disabled={isDateInputDisabled || !checkIn}
+                        onClick={(event) => openNativeDatePicker(event.currentTarget)}
+                        onChange={(event) => setCheckOut(event.target.value)}
+                        className="h-11 w-full rounded-lg border border-[#335F76]/15 bg-white px-3 text-sm text-[#0D2535] outline-none transition focus:border-[#B8852D] focus:ring-2 focus:ring-[#B8852D]/20 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400"
+                      />
                     </label>
                   </div>
 
@@ -445,11 +488,23 @@ export default function RoomDetailPage() {
 
                   {availability && !availability.available && (
                     <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                      Phòng đã được đặt trong khoảng thời gian này.
+                      <p className="font-semibold">
+                        {buildConflictMessage(availability.conflictBookings)}
+                      </p>
+                      {availability.conflictBookings.length > 1 && (
+                        <ul className="mt-2 list-disc space-y-1 pl-5">
+                          {availability.conflictBookings.map((booking) => (
+                            <li key={booking.id}>
+                              {formatDate(booking.check_in_date)} đến{" "}
+                              {formatDate(booking.check_out_date)}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   )}
 
-                  {!checkIn || !checkOut ? (
+                  {!isMaintenance && (!checkIn || !checkOut) ? (
                     <div className="mt-4 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
                       Vui lòng chọn ngày nhận phòng và ngày trả phòng để tính
                       tiền và kiểm tra phòng trống.
@@ -477,11 +532,20 @@ export default function RoomDetailPage() {
 
                   <button
                     type="button"
-                    disabled={bookingLoading || availabilityLoading}
+                    disabled={bookingLoading || availabilityLoading || isMaintenance}
                     onClick={handleConfirmBooking}
+                    title={
+                      isMaintenance
+                        ? "Phòng hiện đang được bảo trì và tạm thời không thể đặt."
+                        : undefined
+                    }
                     className="mt-7 w-full rounded-md bg-[#B8852D] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#9A6D21] disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {bookingLoading ? "Đang đặt phòng..." : "Xác nhận đặt phòng"}
+                    {isMaintenance
+                      ? "Đang bảo trì"
+                      : bookingLoading
+                        ? "Đang đặt phòng..."
+                        : "Xác nhận đặt phòng"}
                   </button>
                 </aside>
               </div>

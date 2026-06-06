@@ -121,6 +121,15 @@ export class BookingService {
       ['maintenance', 'cleaning', 'inactive'].includes(r.status),
     );
     if (unavailableRooms.length > 0) {
+      const maintenanceRooms = unavailableRooms.filter(
+        (room) => room.status === 'maintenance',
+      );
+      if (maintenanceRooms.length > 0) {
+        throw new BadRequestException(
+          `Phòng ${maintenanceRooms.map((r) => r.room_number).join(', ')} hiện đang bảo trì và không thể đặt.`,
+        );
+      }
+
       throw new BadRequestException(
         `Phòng ${unavailableRooms.map((r) => r.room_number).join(', ')} không còn trống`,
       );
@@ -138,15 +147,24 @@ export class BookingService {
       },
       include: {
         room: { select: { room_number: true } },
+        booking: {
+          select: {
+            check_in_date: true,
+            check_out_date: true,
+          },
+        },
+      },
+      orderBy: {
+        booking: {
+          check_in_date: 'asc',
+        },
       },
     });
 
     if (overlappingBookings.length > 0) {
-      const occupiedRooms = [
-        ...new Set(overlappingBookings.map((b) => b.room.room_number)),
-      ].join(', ');
+      const firstConflict = overlappingBookings[0];
       throw new ConflictException(
-        `Phòng ${occupiedRooms} đã được đặt trong khoảng thời gian này`,
+        `Phòng ${firstConflict.room.room_number} đã có người đặt từ ngày ${firstConflict.booking.check_in_date.toLocaleDateString('vi-VN')} đến ngày ${firstConflict.booking.check_out_date.toLocaleDateString('vi-VN')}. Vui lòng chọn ngày khác.`,
       );
     }
 

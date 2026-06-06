@@ -48,26 +48,32 @@ export function HotelSearchHeroSection({ rooms }: HotelSearchHeroSectionProps) {
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(guestOptions[1]);
   const [roomCount, setRoomCount] = useState("1");
-  const availableRoomCount = rooms.length;
 
   const handleExploreRooms = () => {
-    if (!checkIn || !checkOut) {
-      toast.error("Vui lòng chọn ngày nhận phòng và ngày trả phòng");
+    const hasAnyDate = Boolean(checkIn || checkOut);
+    const hasFullDateRange = Boolean(checkIn && checkOut);
+
+    if (hasAnyDate && !hasFullDateRange) {
+      toast.error("Vui lòng chọn đủ ngày nhận phòng và ngày trả phòng");
       return;
     }
 
-    if (checkOut <= checkIn) {
+    if (hasFullDateRange && checkOut <= checkIn) {
       toast.error("Ngày trả phòng phải sau ngày nhận phòng");
       return;
     }
 
     const params = new URLSearchParams();
-    params.set("checkIn", checkIn);
-    params.set("checkOut", checkOut);
-    params.set("guests", guests);
-    params.set("rooms", roomCount);
-    params.set("status", "available");
-    navigate(`/rooms?${params.toString()}`);
+    if (hasFullDateRange) {
+      params.set("checkIn", checkIn);
+      params.set("checkOut", checkOut);
+      params.set("guests", guests);
+      params.set("rooms", roomCount);
+      params.set("status", "available");
+    }
+
+    const query = params.toString();
+    navigate(query ? `/rooms?${query}` : "/rooms");
   };
 
   return (
@@ -78,29 +84,38 @@ export function HotelSearchHeroSection({ rooms }: HotelSearchHeroSectionProps) {
           alt="Khu nghỉ dưỡng Thousand Stars bên hồ bơi"
           className="absolute inset-0 h-full w-full object-cover object-[center_62%]"
         />
-        <div className="absolute inset-0 bg-[#0D2535]/35" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0D2535]/35 via-[#0D2535]/15 to-[#0D2535]/55" />
-        <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/45 to-transparent" />
+        <div className="absolute inset-0 bg-[#071824]/65" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#071824]/75 via-[#071824]/45 to-[#071824]/75" />
+        <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-black/70 to-transparent" />
 
         <div className="relative z-10 mx-auto flex min-h-[560px] max-w-7xl flex-col items-center justify-center px-5 pb-28 pt-16 text-center md:min-h-[620px] md:px-8">
-          <p className="mb-4 text-xs font-bold uppercase tracking-[0.35em] text-[#E5DAC2]">
+          <p
+            className="mb-4 text-xs font-bold uppercase tracking-[0.35em] text-white"
+            style={{ textShadow: "0 2px 12px rgba(0,0,0,0.65)" }}
+          >
             Thousand Stars Hotel
           </p>
           <h1
             className="max-w-4xl font-['Lora'] text-4xl font-bold leading-tight text-white md:text-6xl"
-            style={{ textShadow: "0 3px 24px rgba(0,0,0,0.35)" }}
+            style={{
+              color: "#ffffff",
+              textShadow: "0 4px 28px rgba(0,0,0,0.85)",
+            }}
           >
             Thư giãn. Kết nối.
             <br />
             Tìm nơi nghỉ dưỡng của bạn.
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg">
+          <p
+            className="mt-5 max-w-2xl text-base font-semibold leading-relaxed text-white md:text-lg"
+            style={{ textShadow: "0 3px 18px rgba(0,0,0,0.75)" }}
+          >
             Trải nghiệm không gian lưu trú sang trọng, dịch vụ tận tâm và những
             căn phòng được chọn lọc từ hệ thống Thousand Stars.
           </p>
-          {availableRoomCount > 0 && (
-            <p className="mt-4 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur">
-              {availableRoomCount} phòng đang sẵn sàng phục vụ
+          {rooms.length > 0 && (
+            <p className="mt-4 rounded-full border border-white/30 bg-black/45 px-4 py-2 text-sm font-bold text-white shadow-lg backdrop-blur">
+              {rooms.length} phòng đang sẵn sàng để bạn khám phá
             </p>
           )}
         </div>
