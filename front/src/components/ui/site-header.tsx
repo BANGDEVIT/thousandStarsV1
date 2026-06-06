@@ -19,6 +19,11 @@ const titleByPath: Array<{ pattern: string; title: string; subtitle: string }> =
     subtitle: "Theo dõi hồ sơ, liên hệ, vị trí và trạng thái tài khoản.",
   },
   {
+    pattern: "/admin/revenue",
+    title: "Báo cáo doanh thu",
+    subtitle: "Theo dõi doanh thu, thanh toán và công nợ từ các booking.",
+  },
+  {
     pattern: "/admin/rooms",
     title: "Quản lý phòng",
     subtitle: "Quản lý số phòng, tầng, loại phòng và trạng thái vận hành.",

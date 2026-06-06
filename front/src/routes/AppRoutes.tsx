@@ -10,6 +10,7 @@ import { DashboardOverviewPage } from "@/components/features/dashboard/Dashboard
 import { RoomListPage } from "@/components/features/dashboard/RoomListPage";
 import { RoomTypeListPage } from "@/components/features/dashboard/RoomTypeListPage";
 import { EmployeeListPage } from "@/components/features/dashboard/EmployeeListPage";
+import { RevenueReportPage } from "@/components/features/dashboard/RevenueReportPage";
 import { StaffBookingsPage } from "@/components/features/staff/StaffBookingsPage";
 import { StaffCheckInPage } from "@/components/features/staff/StaffCheckInPage";
 import { StaffCheckOutPage } from "@/components/features/staff/StaffCheckOutPage";
@@ -83,6 +84,7 @@ export function AppRoutes() {
         <Route path="rooms" element={<RoomListPage />} />
         <Route path="room-types" element={<RoomTypeListPage />} />
         <Route path="employees" element={<EmployeeListPage />} />
+        <Route path="revenue" element={<RevenueReportPage />} />
       </Route>
 
       <Route

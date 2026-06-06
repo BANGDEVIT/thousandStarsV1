@@ -6,6 +6,7 @@ import {
   Hotel,
   LayoutDashboard,
   LogOut,
+  ReceiptText,
   UsersRound,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth.store";
@@ -46,6 +47,12 @@ const adminNavItems = [
     description: "Nhân viên",
     url: "/admin/employees",
     icon: UsersRound,
+  },
+  {
+    title: "Revenue",
+    description: "Báo cáo doanh thu",
+    url: "/admin/revenue",
+    icon: ReceiptText,
   },
 ];
 
