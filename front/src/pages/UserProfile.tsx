@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { Navigate } from "react-router";
 import { useProfileStore } from "@/stores/profile.store";
 import { useAuthStore } from "@/stores/auth.store";
+import { getRoleHomePath } from "@/lib/auth-redirect";
 import { ProfileView } from "@/components/features/profile/ProfileView";
 import { ChangePasswordForm } from "@/components/features/profile/ChangePasswordForm";
 import { ProfileSidebar } from "@/components/features/profile/ProfileSidebar";
@@ -10,11 +12,17 @@ import Navbar from "@/components/features/nav-bar/navbar";
 export default function UserProfile() {
   const { profile, loading, fetchProfile, updateProfile } = useProfileStore();
   const accessToken = useAuthStore((s) => s.accessToken);
+  const roles = useAuthStore((s) => s.roles);
   const [activeTab, setActiveTab] = useState<"info" | "history" | "security" | "settings">("info");
 
   useEffect(() => {
     if (accessToken) fetchProfile();
   }, [accessToken, fetchProfile]);
+
+  const roleHomePath = getRoleHomePath(roles);
+  if (roleHomePath !== "/profile") {
+    return <Navigate to={roleHomePath} replace />;
+  }
 
   if (loading && !profile) {
     return (

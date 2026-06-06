@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useAuthStore } from "@/stores/auth.store";
+import { getRoleHomePath } from "@/lib/auth-redirect";
 
 export function LoginForm({ className }: React.ComponentProps<"form">) {
   const { signIn, loading } = useAuthStore();
@@ -32,7 +33,7 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
         ? redirect
         : null;
 
-    navigate(roles.includes("manager") ? "/admin" : safeRedirect ?? "/profile");
+    navigate(safeRedirect ?? getRoleHomePath(roles));
   };
 
   return (

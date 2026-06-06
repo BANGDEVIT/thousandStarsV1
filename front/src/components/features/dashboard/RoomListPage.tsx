@@ -1,42 +1,41 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRoomStore } from '@/stores/room.store';
 import { GenericTable } from '@/components/features/dashboard/GenericTable';
-import { CreateRoomDialog } from '@/components/features/dashboard/CreateRoomDialog';
-import { EditRoomDialog } from '@/components/features/dashboard/EditRoomDialog';
-import { RoomDetailDialog } from '@/components/features/dashboard/RoomDitailDialog';
+import { CreateRoomDialog } from '@/components/features/dashboard/Room/CreateRoomDialog';
+import { EditRoomDialog } from '@/components/features/dashboard/Room/EditRoomDialog';
+import { RoomDetailDialog } from '@/components/features/dashboard/Room/RoomDitailDialog';
+import { DeleteRoomButton } from '@/components/features/dashboard/Room/DeleteRoomButton';
+import { RoomFilterBar } from '@/components/features/dashboard/Room/RoomFilterBar';
 import { Badge } from '@/components/ui/badge';
-import type { Room } from '@/types/room.type';
+import type { Room, GetRoomsQuery } from '@/types/room.type';
 
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  available:   { label: 'Trống',           className: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
-  occupied:    { label: 'Đã đặt',          className: 'border-blue-200 bg-blue-50 text-blue-700' },
-  maintenance: { label: 'Bảo trì',         className: 'border-amber-200 bg-amber-50 text-amber-700' },
-  cleaning:    { label: 'Đang dọn',        className: 'border-purple-200 bg-purple-50 text-purple-700' },
-  inactive:    { label: 'Ngừng hoạt động', className: 'border-slate-200 bg-slate-100 text-slate-500' },
+  available: { label: 'Trống', className: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
+  occupied: { label: 'Đã đặt', className: 'border-blue-200 bg-blue-50 text-blue-700' },
+  maintenance: { label: 'Bảo trì', className: 'border-amber-200 bg-amber-50 text-amber-700' },
+  cleaning: { label: 'Đang dọn', className: 'border-purple-200 bg-purple-50 text-purple-700' },
+  inactive: { label: 'Ngừng hoạt động', className: 'border-slate-200 bg-slate-100 text-slate-500' },
 };
+
+const DEFAULT_FILTERS: GetRoomsQuery = { page: 1 };
 
 export function RoomListPage() {
   const { rooms, loading, fetchRooms, totalPages, page } = useRoomStore();
+  const [filters, setFilters] = useState<GetRoomsQuery>(DEFAULT_FILTERS);
 
   useEffect(() => {
-    fetchRooms();
-  }, []);
+    fetchRooms(filters);
+  }, [fetchRooms, filters]);
 
   const columns = [
-    { key: 'room_number', header: 'Số phòng' },
-    { key: 'floor',       header: 'Tầng' },
     {
-      key: 'status',
-      header: 'Trạng thái',
-      render: (row: Room) => {
-        const s = STATUS_MAP[row.status] ?? { label: row.status, className: '' };
-        return (
-          <Badge variant="outline" className={`text-xs font-normal ${s.className}`}>
-            {s.label}
-          </Badge>
-        );
-      },
+      key: 'room_number',
+      header: 'Số phòng',
+      render: (row: Room) => (
+        <span className="font-medium text-slate-800">{row.room_number}</span>
+      ),
     },
+    { key: 'floor', header: 'Tầng' },
     {
       key: 'room_type',
       header: 'Loại phòng',
@@ -45,16 +44,39 @@ export function RoomListPage() {
       ),
     },
     {
+      key: 'status',
+      header: 'Trạng thái',
+      render: (row: Room) => {
+        const status = STATUS_MAP[row.status] ?? { label: row.status, className: '' };
+
+        return (
+          <Badge variant="outline" className={`text-xs font-normal ${status.className}`}>
+            {status.label}
+          </Badge>
+        );
+      },
+    },
+    {
       key: 'actions',
       header: '',
       render: (row: Room) => (
-        <div className="flex justify-end gap-0.5">
+        <div className="flex items-center justify-end gap-0.5">
           <RoomDetailDialog room={row} />
           <EditRoomDialog room={row} />
+          <DeleteRoomButton room={row} />
         </div>
       ),
     },
   ];
+
+  const toolbar = (
+    <div className="flex w-full items-start justify-between gap-3 max-xl:flex-col xl:items-center">
+      <RoomFilterBar filters={filters} onChange={setFilters} />
+      <div className="shrink-0">
+        <CreateRoomDialog />
+      </div>
+    </div>
+  );
 
   return (
     <div className="p-6">
@@ -64,9 +86,9 @@ export function RoomListPage() {
         loading={loading}
         page={page}
         totalPages={totalPages}
-        onPageChange={(newPage) => fetchRooms({ page: newPage })}
+        onPageChange={(newPage) => setFilters((current) => ({ ...current, page: newPage }))}
         keyExtractor={(row) => row.id}
-        toolbar={<CreateRoomDialog />}
+        toolbar={toolbar}
       />
     </div>
   );

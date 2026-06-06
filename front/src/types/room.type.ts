@@ -1,23 +1,13 @@
+import type { RoomType } from "./roomtype.type";
 export interface Room {
   id: string;
   room_number: string;
   floor: number;
-  status: "available" | "occupied" | "maintenance" | "cleaning" | "inactive";
+  status: 'available' | 'occupied' | 'maintenance' | 'cleaning' | 'inactive';
   room_type: RoomType;
   created_at: string;
   updated_at: string;
   images: string[];
-}
-
-export interface RoomType {
-  id: string;
-  name: string;
-  base_price: number;
-  capacity: number;
-  bed_type: string;
-  amenities: string[];
-  created_at?: string;
-  updated_at?: string;
 }
 
 export interface CreateRoomDto {
@@ -34,11 +24,25 @@ export interface RoomsResponse {
   totalPages: number;
 }
 
-export interface ConflictBooking {
-  id: string;
-  check_in_date: string;
-  check_out_date: string;
-  status: string;
+export interface GetRoomsQuery {
+  page?: number;
+  limit?: number;
+  status?: 'available' | 'occupied' | 'maintenance' | 'cleaning' | 'inactive';
+  room_type_id?: string;
+  floor?: number;
+  sortBy?: 'room_number' | 'floor' | 'status' | 'created_at';
+  order?: 'asc' | 'desc';
+  search?: string;
+}
+
+export interface UpdateRoomDto {
+  room_number?: string;
+  room_type_id?: string;
+  floor?: number;
+}
+
+export interface UpdateRoomStatusDto {
+  status: 'available' | 'occupied' | 'maintenance' | 'cleaning' | 'inactive';
 }
 
 export interface RoomAvailabilityResponse {
@@ -50,24 +54,9 @@ export interface RoomAvailabilityResponse {
   conflicting_booking?: ConflictBooking | null;
   message: string;
 }
-
-export interface GetRoomsQuery {
-  page?: number;
-  limit?: number;
-  status?: string;
-  room_type_id?: string;
-  floor?: number;
-  sortBy?: string;
-  order?: "asc" | "desc";
-  search?: string;
-}
-
-export interface UpdateRoomDto {
-  room_number?: string;
-  room_type_id?: string;
-  floor?: number;
-}
-
-export interface UpdateRoomStatusDto {
-  status: "available" | "occupied" | "maintenance" | "cleaning" | "inactive";
+export interface ConflictBooking {
+  id: string;
+  check_in_date: string;
+  check_out_date: string;
+  status: string;
 }

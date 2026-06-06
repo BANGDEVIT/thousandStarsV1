@@ -2,10 +2,12 @@ import { LogOut, User } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuthStore } from "@/stores/auth.store";
 import { useProfileStore } from "@/stores/profile.store";
+import { getRoleHomePath } from "@/lib/auth-redirect";
 
 export function NavUser() {
   const navigate = useNavigate();
   const accessToken = useAuthStore((state) => state.accessToken);
+  const roles = useAuthStore((state) => state.roles);
   const signOut = useAuthStore((state) => state.signOut);
   const profile = useProfileStore((state) => state.profile);
 
@@ -36,7 +38,7 @@ export function NavUser() {
     <div className="flex items-center justify-end gap-2">
       <button
         type="button"
-        onClick={() => navigate("/profile")}
+        onClick={() => navigate(getRoleHomePath(roles))}
         className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
       >
         <User className="h-4 w-4" />

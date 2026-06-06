@@ -4,8 +4,16 @@ export interface Booking {
   status: string;
   check_in_date: string;
   check_out_date: string;
+  actual_check_in?: string | null;
+  actual_check_out?: string | null;
   nights: number;
   total_room_price: number;
+  customer?: {
+    id: string;
+    full_name: string;
+    phone?: string | null;
+    email?: string | null;
+  };
   rooms: {
     id: string;
     room_number: string;
@@ -34,7 +42,8 @@ export interface BookingQuery {
   page?: number;
   limit?: number;
   status?: "pending" | "confirmed" | "checked_in" | "checked_out" | "cancelled";
-  booking_type?: "online" | "offline";
+  booking_type?: "online" | "offline" | "walk_in";
+  search?: string;
   from_date?: string;
   to_date?: string;
   sortBy?: string;

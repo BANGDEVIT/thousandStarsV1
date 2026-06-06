@@ -4,33 +4,33 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const titleByPath: Array<{ pattern: string; title: string; subtitle: string }> = [
   {
-    pattern: "/admin/dashboard",
-    title: "Dashboard",
-    subtitle: "Theo dõi nhanh tình hình phòng, loại phòng và nhân sự.",
+    pattern: "/staff/check-in",
+    title: "Check-in",
+    subtitle: "Xác nhận khách nhận phòng theo booking đã được xác nhận.",
   },
   {
-    pattern: "/admin/room-types",
-    title: "Quản lý loại phòng",
-    subtitle: "Thiết lập giá, sức chứa, loại giường và tiện nghi.",
+    pattern: "/staff/check-out",
+    title: "Check-out",
+    subtitle: "Hoàn tất trả phòng và chuyển phòng sang trạng thái dọn dẹp.",
   },
   {
-    pattern: "/admin/employees",
-    title: "Quản lý nhân viên",
-    subtitle: "Theo dõi hồ sơ, liên hệ, vị trí và trạng thái tài khoản.",
+    pattern: "/staff/rooms",
+    title: "Danh sách phòng",
+    subtitle: "Theo dõi nhanh số phòng, loại phòng, tầng và trạng thái.",
   },
   {
-    pattern: "/admin/rooms",
-    title: "Quản lý phòng",
-    subtitle: "Quản lý số phòng, tầng, loại phòng và trạng thái vận hành.",
+    pattern: "/staff/bookings",
+    title: "Quản lý booking",
+    subtitle: "Tra cứu, xác nhận, check-in, check-out và hủy booking.",
   },
 ];
 
-export function SiteHeader() {
+export function StaffHeader() {
   const { pathname } = useLocation();
   const currentPage =
     titleByPath.find((item) => pathname.startsWith(item.pattern)) ?? {
-      title: "Quản trị hệ thống",
-      subtitle: "Bảng điều khiển nội bộ của Thousand Stars.",
+      title: "Staff Console",
+      subtitle: "Nghiệp vụ vận hành khách sạn Thousand Stars.",
     };
 
   return (
@@ -43,7 +43,7 @@ export function SiteHeader() {
         />
         <div className="min-w-0">
           <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#E5DAC2]">
-            Thousand Stars Admin
+            Thousand Stars Staff
           </p>
           <h1 className="font-['Lora'] text-xl font-bold tracking-wide text-white lg:text-2xl">
             {currentPage.title}

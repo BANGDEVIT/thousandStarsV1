@@ -49,8 +49,8 @@ const RoomsPage = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>(
-    searchParams.get("status") ?? "",
+  const [statusFilter, setStatusFilter] = useState<Room["status"] | "">(
+    (searchParams.get("status") as Room["status"] | null) ?? "",
   );
   const [checkIn, setCheckIn] = useState(searchParams.get("checkIn") ?? "");
   const [checkOut, setCheckOut] = useState(searchParams.get("checkOut") ?? "");
@@ -97,7 +97,7 @@ const RoomsPage = () => {
   }, [page, statusFilter, checkIn, checkOut]);
 
   const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value);
+    setStatusFilter(value as Room["status"] | "");
     setPage(1);
   };
 

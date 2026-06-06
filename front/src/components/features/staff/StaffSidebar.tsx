@@ -3,10 +3,11 @@ import { NavLink, useNavigate } from "react-router";
 import {
   BedDouble,
   Building2,
-  Hotel,
-  LayoutDashboard,
+  CalendarCheck,
+  ClipboardList,
+  DoorClosed,
+  DoorOpen,
   LogOut,
-  UsersRound,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth.store";
 import {
@@ -22,34 +23,34 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-const adminNavItems = [
+const staffNavItems = [
   {
-    title: "Dashboard",
-    description: "Tổng quan hệ thống",
-    url: "/admin/dashboard",
-    icon: LayoutDashboard,
+    title: "Check-in",
+    description: "Nhận phòng",
+    url: "/staff/check-in",
+    icon: DoorOpen,
   },
   {
-    title: "Room",
-    description: "Quản lý phòng",
-    url: "/admin/rooms",
+    title: "Check-out",
+    description: "Trả phòng",
+    url: "/staff/check-out",
+    icon: DoorClosed,
+  },
+  {
+    title: "Rooms",
+    description: "Danh sách phòng",
+    url: "/staff/rooms",
     icon: BedDouble,
   },
   {
-    title: "RoomType",
-    description: "Loại phòng",
-    url: "/admin/room-types",
-    icon: Hotel,
-  },
-  {
-    title: "Employee",
-    description: "Nhân viên",
-    url: "/admin/employees",
-    icon: UsersRound,
+    title: "Bookings",
+    description: "Quản lý booking",
+    url: "/staff/bookings",
+    icon: ClipboardList,
   },
 ];
 
-export function AppSidebar({ className, ...props }: React.ComponentProps<typeof Sidebar>) {
+export function StaffSidebar({ className, ...props }: React.ComponentProps<typeof Sidebar>) {
   const navigate = useNavigate();
   const signOut = useAuthStore((state) => state.signOut);
 
@@ -73,16 +74,16 @@ export function AppSidebar({ className, ...props }: React.ComponentProps<typeof 
               asChild
               className="h-auto rounded-xl p-0 text-white hover:bg-white/10 hover:text-white data-[slot=sidebar-menu-button]:p-0!"
             >
-              <NavLink to="/admin/dashboard" className="flex items-center gap-3 px-2 py-2">
+              <NavLink to="/staff/check-in" className="flex items-center gap-3 px-2 py-2">
                 <span className="flex size-11 items-center justify-center rounded-xl border border-[#E5DAC2]/30 bg-[#335F76] shadow-sm">
-                  <Building2 className="size-5 text-[#E5DAC2]" />
+                  <CalendarCheck className="size-5 text-[#E5DAC2]" />
                 </span>
                 <span className="min-w-0">
                   <span className="block font-['Lora'] text-base font-bold uppercase tracking-wide text-white">
                     Thousand Stars
                   </span>
                   <span className="block text-xs font-medium text-[#E5DAC2]/75">
-                    Admin Console
+                    Staff Console
                   </span>
                 </span>
               </NavLink>
@@ -94,11 +95,11 @@ export function AppSidebar({ className, ...props }: React.ComponentProps<typeof 
       <SidebarContent className="bg-[#0D2535] px-3 py-4">
         <SidebarGroup>
           <SidebarGroupLabel className="px-2 text-[11px] font-bold uppercase tracking-[0.22em] text-[#E5DAC2]/70">
-            Quản lý
+            Nghiệp vụ
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="mt-2 gap-2">
-              {adminNavItems.map((item) => (
+              {staffNavItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild tooltip={item.title}>
                     <NavLink
@@ -128,6 +129,15 @@ export function AppSidebar({ className, ...props }: React.ComponentProps<typeof 
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <div className="mt-auto px-2 pt-6">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <Building2 className="mb-3 size-5 text-[#E5DAC2]" />
+            <p className="text-xs font-medium leading-relaxed text-white/65">
+              Khu vực dành cho nhân viên lễ tân xử lý phòng và booking trong ngày.
+            </p>
+          </div>
+        </div>
       </SidebarContent>
 
       <SidebarFooter className="border-t border-white/10 bg-[#0D2535] p-3">

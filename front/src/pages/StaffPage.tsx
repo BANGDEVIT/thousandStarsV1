@@ -1,10 +1,10 @@
 import { Outlet } from "react-router";
-import { AppSidebar } from "@/components/ui/app-sidebar";
-import { SiteHeader } from "@/components/ui/site-header";
+import { StaffSidebar } from "@/components/features/staff/StaffSidebar";
+import { StaffHeader } from "@/components/features/staff/StaffHeader";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-export default function AdminPage() {
+export default function StaffPage() {
   return (
     <TooltipProvider>
       <SidebarProvider
@@ -15,9 +15,9 @@ export default function AdminPage() {
           } as React.CSSProperties
         }
       >
-        <AppSidebar variant="inset" />
+        <StaffSidebar variant="inset" />
         <SidebarInset>
-          <SiteHeader />
+          <StaffHeader />
           <main className="flex flex-1 flex-col bg-[#F5F0E8]">
             <div className="@container/main flex flex-1 flex-col">
               <Outlet />
